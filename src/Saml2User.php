@@ -2,97 +2,111 @@
 
 namespace Slides\Saml2;
 
-use OneLogin\Saml2\Auth as OneLogin_Saml2_Auth;
+use OneLogin\Saml2\Auth as OneLoginAuth;
 
 /**
- * A simple class that represents the user that 'came' inside the saml2 assertion
  * Class Saml2User
+ *
  * @package Slides\Saml2
  */
 class Saml2User
 {
-
     protected $auth;
 
-    function __construct(OneLogin_Saml2_Auth $auth)
+    /**
+     * Saml2User constructor.
+     *
+     * @param OneLoginAuth $auth
+     */
+    public function __construct(OneLoginAuth $auth)
     {
         $this->auth = $auth;
     }
 
     /**
-     * @return string User Id retrieved from assertion processed this request
+     * Get the user ID retrieved from assertion processed this request.
+     *
+     * @return string
      */
-    function getUserId()
+    public function getUserId()
     {
-        $auth = $this->auth;
-
-        return $auth->getNameId();
-
+        return $this->auth->getNameId();
     }
 
     /**
-     * @return array attributes retrieved from assertion processed this request
+     * Get the attributes retrieved from assertion processed this request
+     *
+     * @return array
      */
-    function getAttributes()
+    public function getAttributes()
     {
-        $auth = $this->auth;
-
-        return $auth->getAttributes();
+        return $this->auth->getAttributes();
     }
 
     /**
      * Returns the requested SAML attribute
      *
      * @param string $name The requested attribute of the user.
+     *
      * @return array|null Requested SAML attribute ($name).
      */
-    function getAttribute($name) {
-        $auth = $this->auth;
-
-        return $auth->getAttribute($name);
+    public function getAttribute($name)
+    {
+        return $this->auth->getAttribute($name);
     }
     
     /**
-     * @return array attributes retrieved from assertion processed this request
+     * The attributes retrieved from assertion processed this request.
+     *
+     * @return array
      */
-    function getAttributesWithFriendlyName()
+    public function getAttributesWithFriendlyName()
     {
-        $auth = $this->auth;
-
-        return $auth->getAttributesWithFriendlyName();
+        return $this->auth->getAttributesWithFriendlyName();
     }
 
     /**
-     * @return string the saml assertion processed this request
+     * The SAML assertion processed this request.
+     *
+     * @return string
      */
-    function getRawSamlAssertion()
+    public function getRawSamlAssertion()
     {
         return app('request')->input('SAMLResponse'); //just this request
     }
 
-    function getIntendedUrl()
+    /**
+     * Get the intended URL.
+     *
+     * @return mixed
+     */
+    public function getIntendedUrl()
     {
-        $relayState = app('request')->input('RelayState'); //just this request
+        $relayState = app('request')->input('RelayState');
 
         $url = app('Illuminate\Contracts\Routing\UrlGenerator');
 
         if ($relayState && $url->full() != $relayState) {
-
             return $relayState;
         }
+
+        return null;
     }
 
     /**
-     * Parses a SAML property and adds this property to this user or returns the value
+     * Parses a SAML property and adds this property to this user or returns the value.
      *
      * @param string $samlAttribute
      * @param string $propertyName
+     *
      * @return array|null
      */
-    function parseUserAttribute($samlAttribute = null, $propertyName = null) {
+    public function parseUserAttribute($samlAttribute = null, $propertyName = null)
+    {
         if(empty($samlAttribute)) {
             return null;
         }
+
         if(empty($propertyName)) {
             return $this->getAttribute($samlAttribute);
         }
@@ -101,24 +115,36 @@ class Saml2User
     }
 
     /**
-     * Parse the saml attributes and adds it to this user
+     * Parse the SAML attributes and add them to this user.
      *
-     * @param array $attributes Array of properties which need to be parsed, like this ['email' => 'urn:oid:0.9.2342.19200300.100.1.3']
+     * @param array $attributes Array of properties which need to be parsed, like ['email' => 'urn:oid:0.9.2342.19200300.100.1.3']
+     *
+     * @return void
      */
-    function parseAttributes($attributes = array()) {
+    public function parseAttributes($attributes = [])
+    {
         foreach($attributes as $propertyName => $samlAttribute) {
             $this->parseUserAttribute($samlAttribute, $propertyName);
         }
     }
 
-    function getSessionIndex()
+    /**
+     * Get user's session index.
+     *
+     * @return null|string
+     */
+    public function getSessionIndex()
     {
         return $this->auth->getSessionIndex();
     }
 
-    function getNameId()
+    /**
+     * Get user's name ID.
+     *
+     * @return string
+     */
+    public function getNameId()
     {
         return $this->auth->getNameId();
     }
-
 }
