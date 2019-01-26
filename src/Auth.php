@@ -14,11 +14,11 @@ use Slides\Saml2\Events\SignedOut;
 class Auth
 {
     /**
+     * The base authentication handler.
+     *
      * @var OneLoginAuth
      */
     protected $base;
-
-    protected $samlAssertion;
 
     /**
      * Auth constructor.
@@ -31,7 +31,9 @@ class Auth
     }
 
     /**
-     * @return bool if a valid user was fetched from the saml assertion this request.
+     * Checks whether a user is authenticated.
+     *
+     * @return bool
      */
     public function isAuthenticated()
     {
@@ -39,7 +41,8 @@ class Auth
     }
 
     /**
-     * The user info from the assertion
+     * Create a SAML2 user.
+     *
      * @return Saml2User
      */
     public function getSaml2User()
@@ -48,7 +51,8 @@ class Auth
     }
 
     /**
-     * The ID of the last message processed
+     * The ID of the last message processed.
+     *
      * @return String
      */
     public function getLastMessageId()
@@ -57,39 +61,57 @@ class Auth
     }
 
     /**
-     * Initiate a saml2 login flow. It will redirect! Before calling this, check if user is
+     * Initiate a saml2 login flow.
+     *
+     * It will redirect! Before calling this, check if user is
      * authenticated (here in saml2). That would be true when the assertion was received this request.
      *
-     * @param string|null $returnTo        The target URL the user should be returned to after login.
-     * @param array       $parameters      Extra parameters to be added to the GET
-     * @param bool        $forceAuthn      When true the AuthNReuqest will set the ForceAuthn='true'
-     * @param bool        $isPassive       When true the AuthNReuqest will set the Ispassive='true'
-     * @param bool        $stay            True if we want to stay (returns the url string) False to redirect
-     * @param bool        $setNameIdPolicy When true the AuthNReuqest will set a nameIdPolicy element
+     * @param string|null $returnTo The target URL the user should be returned to after login.
+     * @param array $parameters Extra parameters to be added to the GET
+     * @param bool $forceAuthn When true the AuthNReuqest will set the ForceAuthn='true'
+     * @param bool $isPassive When true the AuthNReuqest will set the Ispassive='true'
+     * @param bool $stay True if we want to stay (returns the url string) False to redirect
+     * @param bool $setNameIdPolicy When true the AuthNReuqest will set a nameIdPolicy element
      *
      * @return string|null If $stay is True, it return a string with the SLO URL + LogoutRequest + parameters
+     *
+     * @throws OneLoginError
      */
-    public function login($returnTo = null, $parameters = array(), $forceAuthn = false, $isPassive = false, $stay = false, $setNameIdPolicy = true)
+    public function login(
+        $returnTo = null,
+        $parameters = array(),
+        $forceAuthn = false,
+        $isPassive = false,
+        $stay = false,
+        $setNameIdPolicy = true
+    )
     {
         return $this->base->login($returnTo, $parameters, $forceAuthn, $isPassive, $stay, $setNameIdPolicy);
     }
 
     /**
-     * Initiate a saml2 logout flow. It will close session on all other SSO services. You should close
-     * local session if applicable.
+     * Initiate a saml2 logout flow. It will close session on all other SSO services.
+     * You should close local session if applicable.
      *
-     * @param string|null $returnTo            The target URL the user should be returned to after logout.
-     * @param string|null $nameId              The NameID that will be set in the LogoutRequest.
-     * @param string|null $sessionIndex        The SessionIndex (taken from the SAML Response in the SSO process).
-     * @param string|null $nameIdFormat        The NameID Format will be set in the LogoutRequest.
-     * @param bool        $stay            True if we want to stay (returns the url string) False to redirect
+     * @param string|null $returnTo The target URL the user should be returned to after logout.
+     * @param string|null $nameId The NameID that will be set in the LogoutRequest.
+     * @param string|null $sessionIndex The SessionIndex (taken from the SAML Response in the SSO process).
+     * @param string|null $nameIdFormat The NameID Format will be set in the LogoutRequest.
+     * @param bool $stay True if we want to stay (returns the url string) False to redirect
      * @param string|null $nameIdNameQualifier The NameID NameQualifier will be set in the LogoutRequest.
      *
      * @return string|null If $stay is True, it return a string with the SLO URL + LogoutRequest + parameters
      *
      * @throws OneLoginError
      */
-    public function logout($returnTo = null, $nameId = null, $sessionIndex = null, $nameIdFormat = null, $stay = false, $nameIdNameQualifier = null)
+    public function logout(
+        $returnTo = null,
+        $nameId = null,
+        $sessionIndex = null,
+        $nameIdFormat = null,
+        $stay = false,
+        $nameIdNameQualifier = null
+    )
     {
         $auth = $this->base;
 
@@ -97,78 +119,82 @@ class Auth
     }
 
     /**
-     * Process a Saml response (assertion consumer service)
-     * When errors are encountered, it returns an array with proper description
+     * Process the SAML Response sent by the IdP.
+     *
+     * @return array|null
+     *
+     * @throws OneLoginError
+     * @throws \OneLogin\Saml2\ValidationError
      */
     public function acs()
     {
-        /** @var $auth OneLoginAuth */
-        $auth = $this->base;
+        $this->base->processResponse();
 
-        $auth->processResponse();
-
-        $errors = $auth->getErrors();
+        $errors = $this->base->getErrors();
 
         if (!empty($errors)) {
             return $errors;
         }
 
-        if (!$auth->isAuthenticated()) {
-            return array('error' => 'Could not authenticate');
+        if (!$this->base->isAuthenticated()) {
+            return ['error' => 'Could not authenticate'];
         }
 
         return null;
-
     }
 
     /**
-     * Process a Saml response (assertion consumer service)
-     * returns an array with errors if it can not logout
+     * Process the SAML Logout Response / Logout Request sent by the IdP.
+     *
+     * Returns an array with errors if it can not logout.
+     *
+     * @param bool $retrieveParametersFromServer
+     *
+     * @return array
+     *
+     * @throws \OneLogin\Saml2\Error
      */
     public function sls($retrieveParametersFromServer = false)
     {
-        $auth = $this->base;
-
-        // destroy the local session by firing the Logout event
-        $keep_local_session = false;
-        $session_callback = function () {
+        $this->base->processSLO(false, null, $retrieveParametersFromServer, function () {
             event(new SignedOut());
-        };
+        });
 
-        $auth->processSLO($keep_local_session, null, $retrieveParametersFromServer, $session_callback);
-
-        $errors = $auth->getErrors();
+        $errors = $this->base->getErrors();
 
         return $errors;
     }
 
     /**
-     * Show metadata about the local sp. Use this to configure your saml2 IDP
-     * @return mixed xml string representing metadata
-     * @throws \InvalidArgumentException if metadata is not correctly set
+     * Get metadata about the local SP. Use this to configure your Saml2 IdP.
+     *
+     * @return string
+     *
+     * @throws \OneLogin\Saml2\Error
+     * @throws \Exception
+     * @throws \InvalidArgumentException If metadata is not correctly set
      */
     public function getMetadata()
     {
-        $auth = $this->base;
-        $settings = $auth->getSettings();
+        $settings = $this->base->getSettings();
         $metadata = $settings->getSPMetadata();
         $errors = $settings->validateMetadata($metadata);
 
-        if (empty($errors)) {
-
+        if (!count($errors)) {
             return $metadata;
-        } else {
-
-            throw new InvalidArgumentException(
-                'Invalid SP metadata: ' . implode(', ', $errors),
-                OneLoginError::METADATA_SP_INVALID
-            );
         }
+
+        throw new \InvalidArgumentException(
+            'Invalid SP metadata: ' . implode(', ', $errors),
+            OneLoginError::METADATA_SP_INVALID
+        );
     }
 
     /**
      * Get the last error reason from \OneLogin_Saml2_Auth, useful for error debugging.
+     *
      * @see \OneLogin_Saml2_Auth::getLastErrorReason()
+     *
      * @return string
      */
     public function getLastErrorReason()
@@ -177,6 +203,8 @@ class Auth
     }
 
     /**
+     * Get the base authentication handler.
+     *
      * @return OneLoginAuth
      */
     public function getBase()
