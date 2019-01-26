@@ -1,14 +1,18 @@
 <?php
-namespace Aacotroneo\Saml2;
 
-use OneLogin\Saml2\Auth as OneLogin_Saml2_Auth;
-use OneLogin\Saml2\Utils as OneLogin_Saml2_Utils;
-use URL;
-use Illuminate\Support\ServiceProvider;
+namespace Slides\Saml2;
 
-class Saml2ServiceProvider extends ServiceProvider
+use OneLogin\Saml2\Auth as OneLoginAuth;
+use OneLogin\Saml2\Utils as OneLoginUtils;
+use Illuminate\Support\Facades\URL;
+
+/**
+ * Class ServiceProvider
+ *
+ * @package Slides\Saml2
+ */
+class ServiceProvider extends \Illuminate\Support\ServiceProvider
 {
-
     /**
      * Indicates if loading of the provider is deferred.
      *
@@ -23,16 +27,16 @@ class Saml2ServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        if(config('saml2.useRoutes', false) == true ){
-            include __DIR__ . '/../../routes.php';
+        if($this->app['config']['saml2.useRoutes'] == true) {
+            include __DIR__ . '/Http/routes.php';
         }
 
         $this->publishes([
-            __DIR__.'/../../config/saml2.php' => config_path('saml2.php'),
+            __DIR__ . '../config/saml2.php' => config_path('saml2.php'),
         ]);
 
         if (config('saml2.proxyVars', false)) {
-            OneLogin_Saml2_Utils::setProxyVars(true);
+            OneLoginUtils::setProxyVars(true);
         }
     }
 
@@ -45,17 +49,17 @@ class Saml2ServiceProvider extends ServiceProvider
     {
         $this->registerOneLoginInContainer();
 
-        $this->app->singleton('Aacotroneo\Saml2\Saml2Auth', function ($app) {
-
-            return new \Aacotroneo\Saml2\Saml2Auth($app['OneLogin_Saml2_Auth']);
+        $this->app->singleton('Slides\Saml2\Auth', function ($app) {
+            return new \Slides\Saml2\Auth($app['OneLogin_Saml2_Auth']);
         });
-
     }
+
 
     protected function registerOneLoginInContainer()
     {
         $this->app->singleton('OneLogin_Saml2_Auth', function ($app) {
             $config = config('saml2');
+
             if (empty($config['sp']['entityId'])) {
                 $config['sp']['entityId'] = URL::route('saml_metadata');
             }
@@ -76,7 +80,9 @@ class Saml2ServiceProvider extends ServiceProvider
                 $config['idp']['x509cert'] = $this->extractCertFromFile($config['idp']['x509cert']);
             }
 
-            return new OneLogin_Saml2_Auth($config);
+            $config['idp'] = array_get($config, 'idp.default');
+
+            return new OneLoginAuth($config);
         });
     }
 

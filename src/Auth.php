@@ -1,56 +1,59 @@
 <?php
 
-namespace Aacotroneo\Saml2;
+namespace Slides\Saml2;
 
-use OneLogin\Saml2\Auth as OneLogin_Saml2_Auth;
-use OneLogin\Saml2\Error as OneLogin_Saml2_Error;
-use OneLogin\Saml2\Utils as OneLogin_Saml2_Utils;
-use Aacotroneo\Saml2\Events\Saml2LogoutEvent;
+use OneLogin\Saml2\Auth as OneLoginAuth;
+use OneLogin\Saml2\Error as OneLoginError;
+use Slides\Saml2\Events\SignedOut;
 
-use Log;
-use Psr\Log\InvalidArgumentException;
-
-class Saml2Auth
+/**
+ * Class Auth
+ *
+ * @package Slides\Saml2
+ */
+class Auth
 {
-
     /**
-     * @var \OneLogin_Saml2_Auth
+     * @var OneLoginAuth
      */
-    protected $auth;
+    protected $base;
 
     protected $samlAssertion;
 
-    function __construct(OneLogin_Saml2_Auth $auth)
+    /**
+     * Auth constructor.
+     *
+     * @param OneLoginAuth $auth
+     */
+    public function __construct(OneLoginAuth $auth)
     {
-        $this->auth = $auth;
+        $this->base = $auth;
     }
 
     /**
      * @return bool if a valid user was fetched from the saml assertion this request.
      */
-    function isAuthenticated()
+    public function isAuthenticated()
     {
-        $auth = $this->auth;
-
-        return $auth->isAuthenticated();
+        return $this->base->isAuthenticated();
     }
 
     /**
      * The user info from the assertion
      * @return Saml2User
      */
-    function getSaml2User()
+    public function getSaml2User()
     {
-        return new Saml2User($this->auth);
+        return new Saml2User($this->base);
     }
 
     /**
      * The ID of the last message processed
      * @return String
      */
-    function getLastMessageId()
+    public function getLastMessageId()
     {
-        return $this->auth->getLastMessageId();
+        return $this->base->getLastMessageId();
     }
 
     /**
@@ -66,11 +69,9 @@ class Saml2Auth
      *
      * @return string|null If $stay is True, it return a string with the SLO URL + LogoutRequest + parameters
      */
-    function login($returnTo = null, $parameters = array(), $forceAuthn = false, $isPassive = false, $stay = false, $setNameIdPolicy = true)
+    public function login($returnTo = null, $parameters = array(), $forceAuthn = false, $isPassive = false, $stay = false, $setNameIdPolicy = true)
     {
-        $auth = $this->auth;
-
-        return $auth->login($returnTo, $parameters, $forceAuthn, $isPassive, $stay, $setNameIdPolicy);
+        return $this->base->login($returnTo, $parameters, $forceAuthn, $isPassive, $stay, $setNameIdPolicy);
     }
 
     /**
@@ -86,11 +87,11 @@ class Saml2Auth
      *
      * @return string|null If $stay is True, it return a string with the SLO URL + LogoutRequest + parameters
      *
-     * @throws OneLogin_Saml2_Error
+     * @throws OneLoginError
      */
-    function logout($returnTo = null, $nameId = null, $sessionIndex = null, $nameIdFormat = null, $stay = false, $nameIdNameQualifier = null)
+    public function logout($returnTo = null, $nameId = null, $sessionIndex = null, $nameIdFormat = null, $stay = false, $nameIdNameQualifier = null)
     {
-        $auth = $this->auth;
+        $auth = $this->base;
 
         return $auth->logout($returnTo, [], $nameId, $sessionIndex, $stay, $nameIdFormat, $nameIdNameQualifier);
     }
@@ -99,11 +100,10 @@ class Saml2Auth
      * Process a Saml response (assertion consumer service)
      * When errors are encountered, it returns an array with proper description
      */
-    function acs()
+    public function acs()
     {
-
-        /** @var $auth OneLogin_Saml2_Auth */
-        $auth = $this->auth;
+        /** @var $auth OneLoginAuth */
+        $auth = $this->base;
 
         $auth->processResponse();
 
@@ -125,14 +125,14 @@ class Saml2Auth
      * Process a Saml response (assertion consumer service)
      * returns an array with errors if it can not logout
      */
-    function sls($retrieveParametersFromServer = false)
+    public function sls($retrieveParametersFromServer = false)
     {
-        $auth = $this->auth;
+        $auth = $this->base;
 
         // destroy the local session by firing the Logout event
         $keep_local_session = false;
         $session_callback = function () {
-            event(new Saml2LogoutEvent());
+            event(new SignedOut());
         };
 
         $auth->processSLO($keep_local_session, null, $retrieveParametersFromServer, $session_callback);
@@ -147,9 +147,9 @@ class Saml2Auth
      * @return mixed xml string representing metadata
      * @throws \InvalidArgumentException if metadata is not correctly set
      */
-    function getMetadata()
+    public function getMetadata()
     {
-        $auth = $this->auth;
+        $auth = $this->base;
         $settings = $auth->getSettings();
         $metadata = $settings->getSPMetadata();
         $errors = $settings->validateMetadata($metadata);
@@ -161,7 +161,7 @@ class Saml2Auth
 
             throw new InvalidArgumentException(
                 'Invalid SP metadata: ' . implode(', ', $errors),
-                OneLogin_Saml2_Error::METADATA_SP_INVALID
+                OneLoginError::METADATA_SP_INVALID
             );
         }
     }
@@ -171,7 +171,16 @@ class Saml2Auth
      * @see \OneLogin_Saml2_Auth::getLastErrorReason()
      * @return string
      */
-    function getLastErrorReason() {
-        return $this->auth->getLastErrorReason();
+    public function getLastErrorReason()
+    {
+        return $this->base->getLastErrorReason();
+    }
+
+    /**
+     * @return OneLoginAuth
+     */
+    public function getBase()
+    {
+        return $this->base;
     }
 }

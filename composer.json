@@ -1,14 +1,14 @@
 {
-    "name": "aacotroneo/laravel-saml2",
+    "name": "24slides/laravel-saml2",
+    "type": "library",
     "description": "A Laravel package for Saml2 integration as a SP (service provider) based on OneLogin toolkit, which is much lightweight than simplesamlphp",
-    "keywords": ["laravel","saml", "saml2", "onelogin"],
-    "homepage": "https://github.com/aacotroneo/laravel-saml2",
+    "keywords": ["laravel", "saml", "saml2", "onelogin", "sso"],
+    "homepage": "https://github.com/24slides/laravel-saml2",
     "license": "MIT",
-    "version": "1.0.0",
     "authors": [
         {
-            "name": "aacotroneo",
-            "email": "aacotroneo@gmail.com"
+            "name": "Artem Brezhnev",
+            "email": "brezzhnev@gmail.com"
         }
     ],
     "require": {
@@ -21,19 +21,17 @@
         "mockery/mockery": "0.9.*"
     },
     "autoload": {
-        "psr-0": {
-            "Aacotroneo\\Saml2\\": "src/"
+        "psr-4": {
+            "Slides\\Saml2\\": "src/"
         }
     },
     "extra": {
         "laravel": {
-            "providers": [
-                "Aacotroneo\\Saml2\\Saml2ServiceProvider"
-            ],
             "aliases": {
-                "Saml2": "Aacotroneo\\Saml2\\Facades\\Saml2Auth"
+                "Saml2": "Slides\\Saml2\\Facades\\Auth"
             }
         }
     },
-    "minimum-stability": "stable"
+    "minimum-stability": "dev",
+    "prefer-stable": true
 }
