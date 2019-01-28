@@ -1,20 +1,21 @@
-## Laravel 5 - Saml2
+## [Laravel 5] - SAML 2.0 Service Provider
 
-[![Build Status](https://travis-ci.org/aacotroneo/laravel-saml2.svg)](https://travis-ci.org/aacotroneo/laravel-saml2)
+[![Latest Stable Version][ico-version]][link-packagist]
+[![Software License][ico-license]](LICENSE.md)
+[![Build Status][ico-travis]][link-travis]
+[![Quality Score][ico-code-quality]][link-code-quality]
+[![Code Coverage][ico-code-coverage]][link-code-coverage]
+[![Total Downloads][ico-downloads]][link-downloads]
 
-[check https://github.com/aacotroneo/laravel-saml2/tree/remove_mcrypt for a mcrypt free version ]
-
-A Laravel package for Saml2 integration as a SP (service provider) based on  [OneLogin](https://github.com/onelogin/php-saml) toolkit, which is much lighter and easier to install than simplesamlphp SP. It doesn't need separate routes or session storage to work!
-
-The aim of this library is to be as simple as possible. We won't mess with Laravel users, auth, session...  We prefer to limit ourselves to a concrete task. Ask the user to authenticate at the IDP and process the response. Same case for SLO requests.
-
+A Laravel package for SAML2 integration as a SP (service provider) based on [OneLogin](https://github.com/onelogin/php-saml) toolkit, which is much lighter and easier to install than SimpleSAMLphp SP. 
+It doesn't need separate routes or session storage to work!
 
 ## Installation - Composer
 
 You can install the package via composer:
 
 ```
-composer require aacotroneo/laravel-saml2
+composer require 24slides/laravel-saml2
 ```
 
 If you are using Laravel 5.5 and up, the service provider will automatically get registered.
@@ -24,22 +25,27 @@ For older versions of Laravel (<5.5), you have to add the service provider and a
 ```php
 'providers' => [
         ...
-    	Aacotroneo\Saml2\Saml2ServiceProvider::class,
+    	Slides\Saml2\ServiceProvider::class,
 ]
 
 'alias' => [
         ...
-        'Saml2' => Aacotroneo\Saml2\Facades\Saml2Auth::class,
+        'Saml2' => Slides\Saml2\Facades\Auth::class,
 ]
 ```
 
-Then publish the config file with `php artisan vendor:publish --provider="Aacotroneo\Saml2\Saml2ServiceProvider"`. This will add the file `app/config/saml2_settings.php`. This config is handled almost directly by  [OneLogin](https://github.com/onelogin/php-saml) so you may get further references there, but will cover here what's really necessary. There are some other config about routes you may want to check, they are pretty straightforward.
+Then publish the config file with `php artisan vendor:publish --provider="Slides\Saml2\ServiceProvider"`. 
+This will add the file `app/config/saml2.php`. 
+This config is handled almost directly by [OneLogin](https://github.com/onelogin/php-saml) so you may get further references there, but will cover here what's really necessary. 
+There are some other config about routes you may want to check, they are pretty straightforward.
 
 ### Configuration
 
-Once you publish your saml2_settings.php to your own files, you need to configure your sp and IDP (remote server). The only real difference between this config and the one that OneLogin uses, is that the SP entityId, assertionConsumerService url and singleLogoutService URL are injected by the library. They are taken from routes 'saml_metadata', 'saml_acs' and 'saml_sls' respectively.
+Once you publish your saml2.php to your own files, you need to configure your SP and IdP (remote server). 
+The only real difference between this config and the one that OneLogin uses, is that the SP `entityId`, `assertionConsumerService` url and `singleLogoutService` URL are injected by the library. 
+They are taken from routes 'saml.metadata', 'saml.acs' and 'saml.sls' respectively.
 
-Remember that you don't need to implement those routes, but you'll need to add them to your IDP configuration. For example, if you use simplesamlphp, add the following to /metadata/sp-remote.php
+Remember that you don't need to implement those routes, but you'll need to add them to your IDP configuration. For example, if you use SimpleSAMLphp, add the following to `/metadata/sp-remote.php`
 
 ```php
 $metadata['http://laravel_url/saml2/metadata'] = array(
@@ -50,113 +56,137 @@ $metadata['http://laravel_url/saml2/metadata'] = array(
     'simplesaml.nameidattribute' => 'uid' 
 );
 ```
-You can check that metadata if you actually navigate to 'http://laravel_url/saml2/metadata'
+
+You can check that metadata if you actually navigate to `http://laravel_url/saml2/metadata`
 
 
 ### Usage
 
-When you want your user to login, just call `Saml2Auth::login()` or redirect to route 'saml2_login'. Just remember that it does not use any session storage, so if you ask it to login it will redirect to the IDP whether the user is logged in or not. For example, you can change your authentication middleware.
-```php
-	public function handle($request, Closure $next)
-	{
-		if ($this->auth->guest())
-		{
-			if ($request->ajax())
-			{
-				return response('Unauthorized.', 401);
-			}
-			else
-			{
-        			 return Saml2::login(URL::full());
-                		 //return redirect()->guest('auth/login');
-			}
-		}
+When you want your user to login, just call `Auth::login()` or redirect to route 'saml2.login'. 
+Just remember that it does not use any session storage, so if you ask it to login it will redirect to the IDP whether the user is logged in or not. 
+For example, you can change your authentication middleware.
 
-		return $next($request);
-	}
-```
-
-Since Laravel 5.3, you can change your unauthenticated method in ```app/Exceptions/Handler.php```.
 ```php
-protected function unauthenticated($request, AuthenticationException $exception)
+public function handle($request, Closure $next)
 {
-	if ($request->expectsJson())
+    if ($this->auth->guest())
+    {
+        if ($request->ajax())
         {
-            return response()->json(['error' => 'Unauthenticated.'], 401);
+            return response('Unauthorized.', 401);
         }
-
-        return Saml2Auth::login();
+        
+        return Saml2::login(URL::full());
+    }
+    
+    return $next($request);
 }
 ```
 
-The Saml2::login will redirect the user to the IDP and will came back to an endpoint the library serves at /saml2/acs. That will process the response and fire an event when ready. The next step for you is to handle that event. You just need to login the user or refuse.
+Since Laravel 5.3, you can change your unauthenticated method in `app/Exceptions/Handler.php`.
 
 ```php
-
- Event::listen('Aacotroneo\Saml2\Events\Saml2LoginEvent', function (Saml2LoginEvent $event) {
-            $messageId = $event->getSaml2Auth()->getLastMessageId();
-            // your own code preventing reuse of a $messageId to stop replay attacks
-            $user = $event->getSaml2User();
-            $userData = [
-                'id' => $user->getUserId(),
-                'attributes' => $user->getAttributes(),
-                'assertion' => $user->getRawSamlAssertion()
-            ];
-             $laravelUser = //find user by ID or attribute
-             //if it does not exist create it and go on  or show an error message
-             Auth::login($laravelUser);
-        });
-
+protected function unauthenticated($request, AuthenticationException $exception)
+{
+    if ($request->expectsJson())
+    {
+        return response()->json(['error' => 'Unauthenticated.'], 401);
+    }
+    
+    return Saml2::login();
+}
 ```
+
+The `Saml2::login` will redirect the user to the IdP and will came back to an endpoint the library serves at `/saml2/acs`. 
+That will process the response and fire an event when ready. 
+The next step for you is to handle that event. 
+You just need to login the user or refuse.
+
+```php
+Event::listen('Slides\Saml2\Events\SignedIn', function (Saml2LoginEvent $event) {
+    $messageId = $event->getAuth()->getLastMessageId();
+    
+    // your own code preventing reuse of a $messageId to stop replay attacks
+    $user = $event->getSaml2User();
+    
+    $userData = [
+        'id' => $user->getUserId(),
+        'attributes' => $user->getAttributes(),
+        'assertion' => $user->getRawSamlAssertion()
+    ];
+    
+    $laravelUser = // find user by ID or attribute
+    
+    // if it does not exist create it and go on or show an error message
+    Auth::login($laravelUser);
+});
+```
+
 ### Auth persistence
 
-Becarefull about necessary Laravel middleware for Auth persistence in Session.
+Be careful about necessary Laravel middleware for Auth persistence in Session.
 
-For exemple, it can be:
+For example, it could be:
 
-```
+```php
 # in App\Http\Kernel
 protected $middlewareGroups = [
-        'web' => [
-	    ...
-	],
-	'api' => [
-            ...
-        ],
-        'saml' => [
-            \App\Http\Middleware\EncryptCookies::class,
-            \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
-            \Illuminate\Session\Middleware\StartSession::class,
-        ],
+    'web' => [
+        ...
+    ],
+    'api' => [
+        ...
+    ],
+    'saml' => [
+        \App\Http\Middleware\EncryptCookies::class,
+        \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
+        \Illuminate\Session\Middleware\StartSession::class,
+    ],
 
 ```
 
-And in `config/saml2_settings.php` :
+And in `config/saml2.php`:
 ```
-    /**
-     * which middleware group to use for the saml routes
-     * Laravel 5.2 will need a group which includes StartSession
-     */
-    'routesMiddleware' => ['saml'],
+/**
+ * Which middleware group to use for the saml routes.
+ * Laravel 5.2 will need a group which includes StartSession.
+ */
+'routesMiddleware' => ['saml'],
 ```
 
 ### Log out
-Now there are two ways the user can log out.
- + 1 - By logging out in your app: In this case you 'should' notify the IDP first so it closes global session.
- + 2 - By logging out of the global SSO Session. In this case the IDP will notify you on /saml2/slo endpoint (already provided)
 
-For case 1 call `Saml2Auth::logout();` or redirect the user to the route 'saml_logout' which does just that. Do not close the session inmediately as you need to receive a response confirmation from the IDP (redirection). That response will be handled by the library at /saml2/sls and will fire an event for you to complete the operation.
+Now there are two ways the user can log out.
+- By logging out in your app: In this case you 'should' notify the IDP first so it closes global session.
+- By logging out of the global SSO Session. In this case the IDP will notify you on `/saml2/slo` endpoint (already provided)
+
+For case 1 call `Saml2Auth::logout();` or redirect the user to the route 'saml.logout' which does just that. 
+Do not close the session immediately as you need to receive a response confirmation from the IdP (redirection). 
+That response will be handled by the library at `/saml2/sls` and will fire an event for you to complete the operation.
 
 For case 2 you will only receive the event. Both cases 1 and 2 receive the same event. 
 
-Note that for case 2, you may have to manually save your session to make the logout stick (as the session is saved by middleware, but the OneLogin library will redirect back to your IDP before that happens)
+Note that for case 2, you may have to manually save your session to make the logout stick (as the session is saved by middleware, but the OneLogin library will redirect back to your IdP before that happens)
 
 ```php
-        Event::listen('Aacotroneo\Saml2\Events\Saml2LogoutEvent', function ($event) {
-            Auth::logout();
-            Session::save();
-        });
+Event::listen('Slides\Saml2\Events\SignedOut', function ($event) {
+    Auth::logout();
+    Session::save();
+});
 ```
 
-
 That's it. Feel free to ask any questions, make PR or suggestions, or open Issues.
+
+[ico-version]: https://poser.pugx.org/24slides/auth-connector/v/stable?format=flat-square
+[ico-license]: https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square
+[ico-travis]: https://img.shields.io/travis/24Slides/auth-connector.svg?style=flat-square
+[ico-code-quality]: https://img.shields.io/scrutinizer/g/24slides/auth-connector.svg?style=flat-square
+[ico-code-coverage]: https://img.shields.io/scrutinizer/coverage/g/24slides/auth-connector.svg?style=flat-square
+[ico-downloads]: https://img.shields.io/packagist/dt/24slides/auth-connector.svg?style=flat-square
+
+[link-packagist]: https://packagist.org/packages/24slides/laravel-saml2
+[link-travis]: https://travis-ci.org/24Slides/laravel-saml2
+[link-scrutinizer]: https://scrutinizer-ci.com/g/24slides/laravel-saml2/code-structure
+[link-code-quality]: https://scrutinizer-ci.com/g/24slides/laravel-saml2
+[link-code-coverage]: https://scrutinizer-ci.com/g/24Slides/laravel-saml2
+[link-downloads]: https://packagist.org/packages/24slides/laravel-saml2
