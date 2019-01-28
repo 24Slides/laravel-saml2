@@ -1,11 +1,16 @@
 <?php
-namespace Aacotroneo\Saml2\Facades;
+
+namespace Slides\Saml2\Facades;
 
 use Illuminate\Support\Facades\Facade;
 
-class Saml2Auth extends Facade
+/**
+ * Class Saml2Auth
+ *
+ * @package Slides\Saml2\Facades
+ */
+class Auth extends Facade
 {
-
     /**
      * Get the registered name of the component.
      *
@@ -13,7 +18,6 @@ class Saml2Auth extends Facade
      */
     protected static function getFacadeAccessor()
     {
-        return 'Aacotroneo\Saml2\Saml2Auth';
+        return 'Slides\Saml2\Auth';
     }
-
-} 
+}
