@@ -177,12 +177,12 @@ Event::listen('Slides\Saml2\Events\SignedOut', function ($event) {
 
 That's it. Feel free to ask any questions, make PR or suggestions, or open Issues.
 
-[ico-version]: https://poser.pugx.org/24slides/auth-connector/v/stable?format=flat-square
+[ico-version]: https://poser.pugx.org/24slides/laravel-saml2/v/stable?format=flat-square
 [ico-license]: https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square
-[ico-travis]: https://img.shields.io/travis/24Slides/auth-connector.svg?style=flat-square
-[ico-code-quality]: https://img.shields.io/scrutinizer/g/24slides/auth-connector.svg?style=flat-square
-[ico-code-coverage]: https://img.shields.io/scrutinizer/coverage/g/24slides/auth-connector.svg?style=flat-square
-[ico-downloads]: https://img.shields.io/packagist/dt/24slides/auth-connector.svg?style=flat-square
+[ico-travis]: https://img.shields.io/travis/24Slides/laravel-saml2.svg?style=flat-square
+[ico-code-quality]: https://img.shields.io/scrutinizer/g/24slides/laravel-saml2.svg?style=flat-square
+[ico-code-coverage]: https://img.shields.io/scrutinizer/coverage/g/24slides/laravel-saml2.svg?style=flat-square
+[ico-downloads]: https://img.shields.io/packagist/dt/24slides/laravel-saml2.svg?style=flat-square
 
 [link-packagist]: https://packagist.org/packages/24slides/laravel-saml2
 [link-travis]: https://travis-ci.org/24Slides/laravel-saml2
