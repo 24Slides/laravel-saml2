@@ -30,7 +30,7 @@ return [
     |
     */
 
-    'routesPrefix' => '/saml',
+    'routesPrefix' => '/saml2',
 
     /*
     |--------------------------------------------------------------------------
@@ -137,36 +137,71 @@ return [
 
     'sp' => [
 
-        // Specifies constraints on the name identifier to be used to
-        // represent the requested subject.
-        // Take a look on lib/Saml2/Constants.php to see the NameIdFormat supported
+        /*
+        |--------------------------------------------------------------------------
+        | NameID format.
+        |--------------------------------------------------------------------------
+        |
+        | Specifies constraints on the name identifier to be used to
+        | represent the requested subject.
+        |
+        */
+
         'NameIDFormat' => 'urn:oasis:names:tc:SAML:2.0:nameid-format:persistent',
 
-        // Usually x509cert and privateKey of the SP are provided by files placed at
-        // the certs folder. But we can also provide them with the following parameters
-        'x509cert' => env('SAML2_SP_x509',''),
-        'privateKey' => env('SAML2_SP_PRIVATEKEY',''),
+        /*
+        |--------------------------------------------------------------------------
+        | SP Certificates.
+        |--------------------------------------------------------------------------
+        |
+        | Usually x509cert and privateKey of the SP are provided by files placed at
+        | the certs folder. But we can also provide them with the following parameters.
+        |
+        */
 
-        // Identifier (URI) of the SP entity.
-        // Leave blank to use the 'saml_metadata' route.
+        'x509cert' => env('SAML2_SP_CERT_x509',''),
+        'privateKey' => env('SAML2_SP_CERT_PRIVATEKEY',''),
+
+        /*
+        |--------------------------------------------------------------------------
+        | Identifier (URI) of the SP entity.
+        |--------------------------------------------------------------------------
+        |
+        | Leave blank to use the 'saml_metadata' route.
+        |
+        */
+
         'entityId' => env('SAML2_SP_ENTITYID',''),
 
-        // Specifies info about where and how the <AuthnResponse> message MUST be
-        // returned to the requester, in this case our SP.
+        /*
+        |--------------------------------------------------------------------------
+        | The Assertion Consumer Service (ACS) URL.
+        |--------------------------------------------------------------------------
+        |
+        | URL Location where the <Response> from the IdP will be returned, using HTTP-POST binding.
+        | Leave blank to use the 'saml_acs' route.
+        |
+        */
+
         'assertionConsumerService' => [
-            // URL Location where the <Response> from the IdP will be returned,
-            // using HTTP-POST binding.
-            // Leave blank to use the 'saml_acs' route
             'url' => '',
         ],
-        // Specifies info about where and how the <Logout Response> message MUST be
-        // returned to the requester, in this case our SP.
-        // Remove this part to not include any URL Location in the metadata.
+
+        /*
+        |--------------------------------------------------------------------------
+        | The Single Logout Service URL.
+        |--------------------------------------------------------------------------
+        |
+        | Specifies info about where and how the <Logout Response> message MUST be
+        | returned to the requester, in this case our SP.
+        |
+        | URL Location where the <Response> from the IdP will be returned, using HTTP-Redirect binding.
+        | Leave blank to use the 'saml_sls' route.
+        |
+        */
+
         'singleLogoutService' => [
-            // URL Location where the <Response> from the IdP will be returned,
-            // using HTTP-Redirect binding.
-            // Leave blank to use the 'saml_sls' route
-            'url' => '',
+            'url' => ''
         ],
     ],
 
@@ -180,27 +215,84 @@ return [
     */
 
     'idp' => [
+
+        /*
+        |--------------------------------------------------------------------------
+        | Default Identity Provider settings.
+        |--------------------------------------------------------------------------
+        |
+        | You may define an identity provider to use setting from by default
+        | in case if processing IdP cannot be resolved by incoming request.
+        |
+        */
+
         'default' => env('SAML2_IDP_DEFAULT', 'oneLogin'),
 
+        /*
+        |--------------------------------------------------------------------------
+        | OneLogin Identity Provider.
+        |--------------------------------------------------------------------------
+        */
+
         'oneLogin' => [
-            'issuerURL' => env('SAML2_IDP_ONE_LOGIN_ISSUER_URL'),
+
+            /*
+            |--------------------------------------------------------------------------
+            | The URL (referrer) that sends a request to SP.
+            |--------------------------------------------------------------------------
+            |
+            | Uses to resolve the identity provider automatically by checking whether
+            | referrer URL matches this one.
+            |
+            */
+
+            'url' => env('SAML2_IDP_ONE_LOGIN_URL'),
+
+            /*
+            |--------------------------------------------------------------------------
+            | The issuer URL.
+            |--------------------------------------------------------------------------
+            |
+            | Provide the URL to the IdP's who will issue the security token.
+            |
+            */
+
+            'entityId' => env('SAML2_IDP_ONE_LOGIN_ISSUER_URL'),
+
+            /*
+            |--------------------------------------------------------------------------
+            | The Assertion Consumer Service (ACS) URL.
+            |--------------------------------------------------------------------------
+            */
 
             'singleSignOnService' => [
                 'url' => env('SAML2_IDP_ONE_LOGIN_SERVICE_URL'),
             ],
 
+            /*
+            |--------------------------------------------------------------------------
+            | The Single Logout Service URL.
+            |--------------------------------------------------------------------------
+            */
+
             'singleLogoutService' => [
                 'url' => env('SAML2_IDP_ONE_LOGIN_LOGOUT_URL'),
             ],
 
-            // Public x509 certificate of the IdP
-            'x509cert' => env('SAML2_IDP_ONE_LOGIN_CERT_x509'),
-
             /*
-             *  Instead of use the whole x509cert you can use a fingerprint
-             *  (openssl x509 -noout -fingerprint -in "idp.crt" to generate it)
-             */
-            // 'certFingerprint' => '',
+            |--------------------------------------------------------------------------
+            | Certificates.
+            |--------------------------------------------------------------------------
+            |
+            | Provide either x509cert or fingerprint. To generate a fingerprint:
+            | (openssl x509 -noout -fingerprint -in "idp.crt" to generate it)
+            |
+            */
+
+            'certs' => [
+                'x509' => env('SAML2_IDP_ONE_LOGIN_CERT_x509'),
+                'fingerprint' => env('SAML2_IDP_ONE_LOGIN_CERT_FINGERPRINT')
+            ],
         ],
     ],
 
@@ -347,12 +439,12 @@ return [
 
     'contactPerson' => [
         'technical' => [
-            'givenName' => 'name',
-            'emailAddress' => 'no@reply.com'
+            'givenName' => env('SAML2_CONTACT_TECHNICAL_NAME', 'name'),
+            'emailAddress' => env('SAML2_CONTACT_TECHNICAL_EMAIL', 'no@reply.com')
         ],
         'support' => [
-            'givenName' => 'Support',
-            'emailAddress' => 'no@reply.com'
+            'givenName' => env('SAML2_CONTACT_SUPPORT_NAME', 'Support'),
+            'emailAddress' => env('SAML2_CONTACT_SUPPORT_EMAIL', 'no@reply.com')
         ],
     ],
 
@@ -367,9 +459,9 @@ return [
 
     'organization' => [
         'en-US' => [
-            'name' => 'Name',
-            'displayname' => 'Display Name',
-            'url' => 'http://url'
+            'name' => env('SAML2_ORGANIZATION_NAME', 'Name'),
+            'displayname' => env('SAML2_ORGANIZATION_NAME', 'Display Name'),
+            'url' => env('SAML2_ORGANIZATION_URL', 'http://url')
         ],
     ],
 
