@@ -11,11 +11,11 @@ return [
     |
     | Method | URI                      | Name
     | -------|--------------------------|------------------
-    | POST   | {routesPrefix}/acs       | saml_acs
-    | GET    | {routesPrefix}/login     | saml_login
-    | GET    | {routesPrefix}/logout    | saml_logout
-    | GET    | {routesPrefix}/metadata  | saml_metadata
-    | GET    | {routesPrefix}/sls       | saml_sls
+    | POST   | {routesPrefix}/acs       | saml.acs
+    | GET    | {routesPrefix}/login     | saml.login
+    | GET    | {routesPrefix}/logout    | saml.logout
+    | GET    | {routesPrefix}/metadata  | saml.metadata
+    | GET    | {routesPrefix}/sls       | saml.sls
     |
     */
 
@@ -167,7 +167,7 @@ return [
         | Identifier (URI) of the SP entity.
         |--------------------------------------------------------------------------
         |
-        | Leave blank to use the 'saml_metadata' route.
+        | Leave blank to use the 'saml.metadata' route.
         |
         */
 
@@ -179,7 +179,7 @@ return [
         |--------------------------------------------------------------------------
         |
         | URL Location where the <Response> from the IdP will be returned, using HTTP-POST binding.
-        | Leave blank to use the 'saml_acs' route.
+        | Leave blank to use the 'saml.acs' route.
         |
         */
 
@@ -196,7 +196,7 @@ return [
         | returned to the requester, in this case our SP.
         |
         | URL Location where the <Response> from the IdP will be returned, using HTTP-Redirect binding.
-        | Leave blank to use the 'saml_sls' route.
+        | Leave blank to use the 'saml.sls' route.
         |
         */
 

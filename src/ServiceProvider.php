@@ -61,14 +61,14 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
             $config = config('saml2');
 
             if (empty($config['sp']['entityId'])) {
-                $config['sp']['entityId'] = URL::route('saml_metadata');
+                $config['sp']['entityId'] = URL::route('saml.metadata');
             }
             if (empty($config['sp']['assertionConsumerService']['url'])) {
-                $config['sp']['assertionConsumerService']['url'] = URL::route('saml_acs');
+                $config['sp']['assertionConsumerService']['url'] = URL::route('saml.acs');
             }
             if (!empty($config['sp']['singleLogoutService']) &&
                 empty($config['sp']['singleLogoutService']['url'])) {
-                $config['sp']['singleLogoutService']['url'] = URL::route('saml_sls');
+                $config['sp']['singleLogoutService']['url'] = URL::route('saml.sls');
             }
             if (strpos($config['sp']['privateKey'], 'file://')===0) {
                 $config['sp']['privateKey'] = $this->extractPkeyFromFile($config['sp']['privateKey']);

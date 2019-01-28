@@ -7,27 +7,27 @@ Route::group([
 ], function () {
 
     Route::get('/logout', array(
-        'as' => 'saml_logout',
+        'as' => 'saml.logout',
         'uses' => 'Slides\Saml2\Http\Controllers\Saml2Controller@logout',
     ));
 
     Route::get('/login', array(
-        'as' => 'saml_login',
+        'as' => 'saml.login',
         'uses' => 'Slides\Saml2\Http\Controllers\Saml2Controller@login',
     ));
 
     Route::get('/metadata', array(
-        'as' => 'saml_metadata',
+        'as' => 'saml.metadata',
         'uses' => 'Slides\Saml2\Http\Controllers\Saml2Controller@metadata',
     ));
 
     Route::post('/acs', array(
-        'as' => 'saml_acs',
+        'as' => 'saml.acs',
         'uses' => 'Slides\Saml2\Http\Controllers\Saml2Controller@acs',
     ));
 
     Route::get('/sls', array(
-        'as' => 'saml_sls',
+        'as' => 'saml.sls',
         'uses' => 'Slides\Saml2\Http\Controllers\Saml2Controller@sls',
     ));
 });
