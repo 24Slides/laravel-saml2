@@ -11,6 +11,11 @@ use OneLogin\Saml2\Auth as OneLoginAuth;
  */
 class Saml2User
 {
+    /**
+     * OneLogin authentication handler.
+     *
+     * @var OneLoginAuth
+     */
     protected $auth;
 
     /**
