@@ -1,11 +1,9 @@
 <?php
 
-
 Route::group([
     'prefix' => config('saml2.routesPrefix'),
     'middleware' => config('saml2.routesMiddleware'),
 ], function () {
-
     Route::get('/logout', array(
         'as' => 'saml.logout',
         'uses' => 'Slides\Saml2\Http\Controllers\Saml2Controller@logout',

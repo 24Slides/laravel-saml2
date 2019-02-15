@@ -12,7 +12,18 @@ use Slides\Saml2\Auth;
  */
 class SignedIn
 {
+    /**
+     * The signed-up user.
+     *
+     * @var Saml2User
+     */
     public $user;
+
+    /**
+     * The authentication handler.
+     *
+     * @var Auth
+     */
     public $auth;
 
     /**

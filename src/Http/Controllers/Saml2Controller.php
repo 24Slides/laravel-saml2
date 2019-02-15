@@ -6,6 +6,7 @@ use Slides\Saml2\Events\SignedIn;
 use Slides\Saml2\Auth;
 use Illuminate\Routing\Controller;
 use Illuminate\Http\Request;
+use OneLogin\Saml2\Error as OneLoginError;
 
 /**
  * Class Saml2Controller
@@ -35,6 +36,8 @@ class Saml2Controller extends Controller
      * Render the metadata.
      *
      * @return \Illuminate\Support\Facades\Response
+     *
+     * @throws OneLoginError
      */
     public function metadata()
     {
@@ -49,17 +52,20 @@ class Saml2Controller extends Controller
      * Fires "SignedIn" event if a valid user is found.
      *
      * @return \Illuminate\Support\Facades\Redirect
+     *
+     * @throws OneLoginError
+     * @throws \OneLogin\Saml2\ValidationError
      */
     public function acs()
     {
         $errors = $this->auth->acs();
 
         if (!empty($errors)) {
-            logger()->error('Saml2 error_detail', ['error' => $this->auth->getLastErrorReason()]);
-            session()->flash('saml2_error_detail', [$this->auth->getLastErrorReason()]);
+            logger()->error('saml2.error_detail', ['error' => $this->auth->getLastErrorReason()]);
+            session()->flash('saml2.error_detail', [$this->auth->getLastErrorReason()]);
 
-            logger()->error('Saml2 error', $errors);
-            session()->flash('saml2_error', $errors);
+            logger()->error('saml2.error', $errors);
+            session()->flash('saml2.error', $errors);
 
             return redirect(config('saml2.errorRoute'));
         }
@@ -86,6 +92,9 @@ class Saml2Controller extends Controller
      * This means the user logged out of the SSO infrastructure, you 'should' log him out locally too.
      *
      * @return \Illuminate\Support\Facades\Redirect
+     *
+     * @throws OneLoginError
+     * @throws \Exception
      */
     public function sls()
     {
@@ -102,6 +111,8 @@ class Saml2Controller extends Controller
      * Initiate a login request.
      *
      * @return void
+     *
+     * @throws OneLoginError
      */
     public function login()
     {
@@ -112,6 +123,8 @@ class Saml2Controller extends Controller
      * Initiate a logout request.
      *
      * @return void
+     *
+     * @throws OneLoginError
      */
     public function logout(Request $request)
     {
