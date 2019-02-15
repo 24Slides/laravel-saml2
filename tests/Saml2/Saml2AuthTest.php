@@ -2,38 +2,33 @@
 
 namespace Slides\Saml2;
 
-
-use App;
-use Mockery as m;
 use PHPUnit\Framework\TestCase;
 
 class Saml2AuthTest extends TestCase
 {
-
-
     public function tearDown()
     {
-        m::close();
+        \Mockery::close();
     }
-
 
     public function testIsAuthenticated()
     {
-        $auth = m::mock('OneLogin\Saml2\Auth');
-        $saml2 = new Auth($auth);
+        $oneLoginAuth = \Mockery::mock(\OneLogin\Saml2\Auth::class);
+        $saml2Auth = new Auth($oneLoginAuth);
 
-        $auth->shouldReceive('isAuthenticated')->andReturn('return');
+        $oneLoginAuth->shouldReceive('isAuthenticated')->andReturn(true);
 
-        $this->assertEquals('return', $saml2->isAuthenticated());
-
+        $this->assertEquals(true, $saml2Auth->isAuthenticated());
     }
 
     public function testLogin()
     {
-        $auth = m::mock('OneLogin\Saml2\Auth');
-        $saml2 = new Auth($auth);
-        $auth->shouldReceive('login')->once();
-        $saml2->login();
+        $oneLoginAuth = \Mockery::mock(\OneLogin\Saml2\Auth::class);
+        $saml2Auth = new Auth($oneLoginAuth);
+
+        $oneLoginAuth->shouldReceive('login')->once();
+
+        $saml2Auth->login();
     }
 
     public function testLogout()
@@ -44,12 +39,15 @@ class Saml2AuthTest extends TestCase
         $expectedNameIdFormat = 'urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified';
         $expectedStay = true;
         $expectedNameIdNameQualifier = 'name_id_name_qualifier';
-        $auth = m::mock('OneLogin\Saml2\Auth');
-        $saml2 = new Auth($auth);
-        $auth->shouldReceive('logout')
+
+        $oneLoginAuth = \Mockery::mock(\OneLogin\Saml2\Auth::class);
+        $saml2Auth = new Auth($oneLoginAuth);
+
+        $oneLoginAuth->shouldReceive('logout')
             ->with($expectedReturnTo, [], $expectedNameId, $expectedSessionIndex, $expectedStay, $expectedNameIdFormat, $expectedNameIdNameQualifier)
             ->once();
-        $saml2->logout($expectedReturnTo, $expectedNameId, $expectedSessionIndex, $expectedNameIdFormat, $expectedStay, $expectedNameIdNameQualifier);
+
+        $saml2Auth->logout($expectedReturnTo, $expectedNameId, $expectedSessionIndex, $expectedNameIdFormat, $expectedStay, $expectedNameIdNameQualifier);
     }
 
 
@@ -173,31 +171,16 @@ class Saml2AuthTest extends TestCase
         $this->assertEquals($user->displayName, ['Test User']);
     }
 
-/**
-         * Cant test here. It uses Laravel dependencies (eg. config())
-         */
+    /**
+     * Mock the authentication handler.
+     *
+     * @return Auth|\Mockery\MockInterface
+     */
+    protected function mockAuth()
+    {
+        $auth = \Mockery::mock('OneLogin\Saml2\Auth');
 
-//        $app = m::mock('Illuminate\Contracts\Foundation\Application[register,setDeferredServices]');
-//
-//        $s = m::mock('Slides\Saml2\Saml2ServiceProvider[publishes]', array($app));
-//        $s->boot();
-//        $s->shouldReceive('publishes');
-//
-
-//        $repo = m::mock('Illuminate\Foundation\ProviderRepository[createProvider,loadManifest,shouldRecompile]', array($app, m::mock('Illuminate\Filesystem\Filesystem'), array(__DIR__.'/services.json')));
-//        $repo->shouldReceive('loadManifest')->once()->andReturn(array('eager' => array('foo'), 'deferred' => array('deferred'), 'providers' => array('providers'), 'when' => array()));
-//        $repo->shouldReceive('shouldRecompile')->once()->andReturn(false);
-//        $provider = m::mock('Illuminate\Support\ServiceProvider');
-//        $repo->shouldReceive('createProvider')->once()->with('foo')->andReturn($provider);
-//        $app->shouldReceive('register')->once()->with($provider);
-//        $app->shouldReceive('runningInConsole')->andReturn(false);
-//        $app->shouldReceive('setDeferredServices')->once()->with(array('deferred'));
-//        $repo->load(array());
-//        $s = new Saml2ServiceProvider();
-//
-//        $mock = \Mockery::mock(array('pi' => 3.1, 'e' => 2.71));
-//        $this->assertEquals(3.1416, $mock->pi());
-//        $this->assertEquals(2.71, $mock->e());
-
+        return new Auth($auth);
+    }
 }
 

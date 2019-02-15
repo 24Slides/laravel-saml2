@@ -1,7 +1,7 @@
 {
     "name": "24slides/laravel-saml2",
     "type": "library",
-    "description": "A Laravel package for Saml2 integration as a SP (service provider) based on OneLogin toolkit, which is much lightweight than simplesamlphp",
+    "description": "SAML2 Service Provider integration to your Laravel 5.4+ application, based on OneLogin toolkit",
     "keywords": ["laravel", "saml", "saml2", "onelogin", "sso"],
     "homepage": "https://github.com/24slides/laravel-saml2",
     "license": "MIT",
@@ -12,13 +12,16 @@
         }
     ],
     "require": {
-        "php": ">=5.4.0",
+        "php": ">=7.0",
         "ext-openssl": "*",
-        "illuminate/support": ">=5.0.0",
-        "onelogin/php-saml": "^3.0.0"
+        "illuminate/support": "~5.4",
+        "onelogin/php-saml": "^3.0"
     },
     "require-dev": {
-        "mockery/mockery": "0.9.*"
+        "mockery/mockery": "^0.9.9",
+        "phpunit/phpunit": "^7",
+        "phpunit/php-code-coverage": "^6.0",
+        "squizlabs/php_codesniffer": "^2.3"
     },
     "autoload": {
         "psr-4": {
@@ -29,7 +32,10 @@
         "laravel": {
             "aliases": {
                 "Saml2": "Slides\\Saml2\\Facades\\Auth"
-            }
+            },
+            "providers": [
+                "Slides\\Saml2\\ServiceProvider"
+            ]
         }
     },
     "minimum-stability": "dev",
