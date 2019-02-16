@@ -29,6 +29,8 @@ class Saml2AuthTest extends TestCase
         $oneLoginAuth->shouldReceive('login')->once();
 
         $saml2Auth->login();
+
+        $this->addToAssertionCount(1);
     }
 
     public function testLogout()
@@ -48,17 +50,18 @@ class Saml2AuthTest extends TestCase
             ->once();
 
         $saml2Auth->logout($expectedReturnTo, $expectedNameId, $expectedSessionIndex, $expectedNameIdFormat, $expectedStay, $expectedNameIdNameQualifier);
-    }
 
+        $this->addToAssertionCount(1);
+    }
 
     public function testAcsError()
     {
-        $auth = m::mock('OneLogin\Saml2\Auth');
-        $saml2 = new Auth($auth);
-        $auth->shouldReceive('processResponse')->once();
-        $auth->shouldReceive('getErrors')->once()->andReturn(array('errors'));
+        $oneLoginAuth = \Mockery::mock(\OneLogin\Saml2\Auth::class);
+        $saml2Auth = new Auth($oneLoginAuth);
+        $oneLoginAuth->shouldReceive('processResponse')->once();
+        $oneLoginAuth->shouldReceive('getErrors')->once()->andReturn(array('errors'));
 
-        $error = $saml2->acs();
+        $error = $saml2Auth->acs();
 
         $this->assertNotEmpty($error);
     }
@@ -66,12 +69,12 @@ class Saml2AuthTest extends TestCase
 
     public function testAcsNotAutenticated()
     {
-        $auth = m::mock('OneLogin\Saml2\Auth');
-        $saml2 = new Auth($auth);
-        $auth->shouldReceive('processResponse')->once();
-        $auth->shouldReceive('getErrors')->once()->andReturn(null);
-        $auth->shouldReceive('isAuthenticated')->once()->andReturn(false);
-        $error =  $saml2->acs();
+        $oneLoginAuth = \Mockery::mock(\OneLogin\Saml2\Auth::class);
+        $saml2Auth = new Auth($oneLoginAuth);
+        $oneLoginAuth->shouldReceive('processResponse')->once();
+        $oneLoginAuth->shouldReceive('getErrors')->once()->andReturn(null);
+        $oneLoginAuth->shouldReceive('isAuthenticated')->once()->andReturn(false);
+        $error =  $saml2Auth->acs();
 
         $this->assertNotEmpty($error);
     }
@@ -79,58 +82,58 @@ class Saml2AuthTest extends TestCase
 
     public function testAcsOK()
     {
-        $auth = m::mock('OneLogin\Saml2\Auth');
-        $saml2 = new Auth($auth);
-        $auth->shouldReceive('processResponse')->once();
-        $auth->shouldReceive('getErrors')->once()->andReturn(null);
-        $auth->shouldReceive('isAuthenticated')->once()->andReturn(true);
+        $oneLoginAuth = \Mockery::mock(\OneLogin\Saml2\Auth::class);
+        $saml2Auth = new Auth($oneLoginAuth);
+        $oneLoginAuth->shouldReceive('processResponse')->once();
+        $oneLoginAuth->shouldReceive('getErrors')->once()->andReturn(null);
+        $oneLoginAuth->shouldReceive('isAuthenticated')->once()->andReturn(true);
 
-        $error =  $saml2->acs();
+        $error =  $saml2Auth->acs();
 
         $this->assertEmpty($error);
     }
 
     public function testSlsError()
     {
-        $auth = m::mock('OneLogin\Saml2\Auth');
-        $saml2 = new Auth($auth);
-        $auth->shouldReceive('processSLO')->once();
-        $auth->shouldReceive('getErrors')->once()->andReturn('errors');
+        $oneLoginAuth = \Mockery::mock(\OneLogin\Saml2\Auth::class);
+        $saml2Auth = new Auth($oneLoginAuth);
+        $oneLoginAuth->shouldReceive('processSLO')->once();
+        $oneLoginAuth->shouldReceive('getErrors')->once()->andReturn('errors');
 
-        $error =  $saml2->sls();
+        $error =  $saml2Auth->sls();
 
         $this->assertNotEmpty($error);
     }
 
     public function testSlsOK()
     {
-        $auth = m::mock('OneLogin\Saml2\Auth');
-        $saml2 = new Auth($auth);
-        $auth->shouldReceive('processSLO')->once();
-        $auth->shouldReceive('getErrors')->once()->andReturn(null);
+        $oneLoginAuth = \Mockery::mock(\OneLogin\Saml2\Auth::class);
+        $saml2Auth = new Auth($oneLoginAuth);
+        $oneLoginAuth->shouldReceive('processSLO')->once();
+        $oneLoginAuth->shouldReceive('getErrors')->once()->andReturn(null);
 
-        $error =  $saml2->sls();
+        $error =  $saml2Auth->sls();
 
         $this->assertEmpty($error);
     }
 
     public function testCanGetLastError()
     {
-        $auth = m::mock('OneLogin\Saml2\Auth');
-        $saml2 = new Auth($auth);
+        $oneLoginAuth = \Mockery::mock(\OneLogin\Saml2\Auth::class);
+        $saml2Auth = new Auth($oneLoginAuth);
 
-        $auth->shouldReceive('getLastErrorReason')->andReturn('lastError');
+        $oneLoginAuth->shouldReceive('getLastErrorReason')->andReturn('lastError');
 
-        $this->assertSame('lastError', $saml2->getLastErrorReason());
+        $this->assertSame('lastError', $saml2Auth->getLastErrorReason());
     }
 
     public function testGetUserAttribute() {
-        $auth = m::mock('OneLogin\Saml2\Auth');
-        $saml2 = new Auth($auth);
+        $oneLoginAuth = \Mockery::mock(\OneLogin\Saml2\Auth::class);
+        $saml2Auth = new Auth($oneLoginAuth);
 
-        $user = $saml2->getSaml2User();
+        $user = $saml2Auth->getSaml2User();
 
-        $auth->shouldReceive('getAttribute')
+        $oneLoginAuth->shouldReceive('getAttribute')
             ->with('urn:oid:0.9.2342.19200300.100.1.3')
             ->andReturn(['test@example.com']);
 
@@ -138,12 +141,12 @@ class Saml2AuthTest extends TestCase
     }
 
     public function testParseSingleUserAttribute() {
-        $auth = m::mock('OneLogin\Saml2\Auth');
-        $saml2 = new Auth($auth);
+        $oneLoginAuth = \Mockery::mock(\OneLogin\Saml2\Auth::class);
+        $saml2Auth = new Auth($oneLoginAuth);
 
-        $user = $saml2->getSaml2User();
+        $user = $saml2Auth->getSaml2User();
 
-        $auth->shouldReceive('getAttribute')
+        $oneLoginAuth->shouldReceive('getAttribute')
             ->with('urn:oid:0.9.2342.19200300.100.1.3')
             ->andReturn(['test@example.com']);
 
@@ -153,12 +156,12 @@ class Saml2AuthTest extends TestCase
     }
 
     public function testParseMultipleUserAttributes() {
-        $auth = m::mock('OneLogin\Saml2\Auth');
-        $saml2 = new Auth($auth);
+        $oneLoginAuth = \Mockery::mock(\OneLogin\Saml2\Auth::class);
+        $saml2Auth = new Auth($oneLoginAuth);
 
-        $user = $saml2->getSaml2User();
+        $user = $saml2Auth->getSaml2User();
 
-        $auth->shouldReceive('getAttribute')
+        $oneLoginAuth->shouldReceive('getAttribute')
             ->twice()
             ->andReturn(['test@example.com'], ['Test User']);
 
@@ -178,7 +181,7 @@ class Saml2AuthTest extends TestCase
      */
     protected function mockAuth()
     {
-        $auth = \Mockery::mock('OneLogin\Saml2\Auth');
+        $auth = \Mockery::mock(\OneLogin\Saml2\Auth::class);
 
         return new Auth($auth);
     }
