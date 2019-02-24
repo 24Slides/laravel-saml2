@@ -21,6 +21,11 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
     protected $defer = false;
 
     /**
+     * @var IdpResolver
+     */
+    protected $idpResolver;
+
+    /**
      * Bootstrap the application events.
      *
      * @return void
@@ -69,7 +74,10 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
         $this->registerAuthenticationHandler();
 
         $this->app->singleton('Slides\Saml2\Auth', function ($app) {
-            return new \Slides\Saml2\Auth($app['OneLogin_Saml2_Auth']);
+            return new \Slides\Saml2\Auth(
+                $app['OneLogin_Saml2_Auth'],
+                $this->idpResolver->getLastResolvedKey()
+            );
         });
     }
 
@@ -86,8 +94,7 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
             $this->setConfigDefaultValues($config);
 
             $oneLoginConfig = $config;
-            $oneLoginConfig['idp'] = (new IdpResolver($config['idp'], URL::previous()))
-                ->resolve();
+            $oneLoginConfig['idp'] = $this->resolveIdentityProvider($config['idp']);
 
             return new OneLoginAuth($this->normalizeConfigParameters($oneLoginConfig));
         });
@@ -161,5 +168,18 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
         if (empty($var)) {
             $var = $default;
         }
+    }
+
+    /**
+     * Resolve an Identity Provider.
+     *
+     * @param array $config
+     *
+     * @return array
+     */
+    protected function resolveIdentityProvider(array $config): array
+    {
+        return ($this->idpResolver = new IdpResolver($config['idp'], URL::previous()))
+            ->resolve();
     }
 }

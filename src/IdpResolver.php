@@ -24,6 +24,13 @@ class IdpResolver
     protected $referrer;
 
     /**
+     * The last resolved Identity Provider.
+     *
+     * @var string
+     */
+    protected $lastResolved;
+
+    /**
      * IdpResolver constructor.
      *
      * @param array $idpConfig
@@ -48,6 +55,8 @@ class IdpResolver
             }
 
             if(strpos($config['url'], $this->referrer) !== false) {
+                $this->lastResolved = $key;
+
                 return $config;
             }
         }
@@ -56,18 +65,38 @@ class IdpResolver
             throw new \InvalidArgumentException('Default IdP is not defined');
         }
 
+        $this->lastResolved = $this->defaultIdPKey();
+
         return $default;
     }
 
     /**
-     * Get the default IdP.
+     * Get the latest resolved IdP's key.
+     *
+     * @return string
+     */
+    public function getLastResolvedKey(): string
+    {
+        return $this->lastResolved;
+    }
+
+    /**
+     * Get the default IdP config.
      *
      * @return array|null
      */
     protected function retrieveDefaultIdP()
     {
-        return array_get($this->idpConfig,
-            array_get($this->idpConfig, 'default')
-        );
+        return array_get($this->idpConfig, $this->defaultIdPKey());
+    }
+
+    /**
+     * Get the default's IdP key.
+     *
+     * @return string|null
+     */
+    protected function defaultIdPKey()
+    {
+        return array_get($this->idpConfig, 'default');
     }
 }
