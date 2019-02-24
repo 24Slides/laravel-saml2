@@ -173,13 +173,13 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
     /**
      * Resolve an Identity Provider.
      *
-     * @param array $config
+     * @param array $config The IdPs config.
      *
      * @return array
      */
     protected function resolveIdentityProvider(array $config): array
     {
-        return ($this->idpResolver = new IdpResolver($config['idp'], URL::previous()))
+        return ($this->idpResolver = new IdpResolver($config, URL::previous()))
             ->resolve();
     }
 }
