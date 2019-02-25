@@ -21,13 +21,22 @@ class Auth
     protected $base;
 
     /**
+     * The name of the resolved identity provider.
+     *
+     * @var string
+     */
+    protected $resolvedIdPKey;
+
+    /**
      * Auth constructor.
      *
      * @param OneLoginAuth $auth
+     * @param string $resolvedIdPKey
      */
-    public function __construct(OneLoginAuth $auth)
+    public function __construct(OneLoginAuth $auth, string $resolvedIdPKey = null)
     {
         $this->base = $auth;
+        $this->resolvedIdPKey = $resolvedIdPKey;
     }
 
     /**
@@ -210,5 +219,25 @@ class Auth
     public function getBase()
     {
         return $this->base;
+    }
+
+    /**
+     * Set an Identity Provider.
+     *
+     * @param string $key
+     */
+    public function setResolvedIdPKey(string $key)
+    {
+        $this->resolvedIdPKey = $key;
+    }
+
+    /**
+     * Get an Identity Provider.
+     *
+     * @return string|null
+     */
+    public function getResolvedIdPKey()
+    {
+        return $this->resolvedIdPKey;
     }
 }
