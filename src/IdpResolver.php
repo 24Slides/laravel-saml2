@@ -54,7 +54,7 @@ class IdpResolver
                 continue;
             }
 
-            if(strpos($config['url'], $this->referrer) !== false) {
+            if(strpos($this->referrer, $config['url']) !== false) {
                 $this->lastResolved = $key;
 
                 return $config;
