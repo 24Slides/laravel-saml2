@@ -226,18 +226,6 @@ return [
 
             /*
             |--------------------------------------------------------------------------
-            | The URL (referrer) that sends a request to SP.
-            |--------------------------------------------------------------------------
-            |
-            | Uses to resolve the identity provider automatically by checking whether
-            | referrer URL matches this one.
-            |
-            */
-
-            'url' => env('SAML2_IDP_ONE_LOGIN_URL'),
-
-            /*
-            |--------------------------------------------------------------------------
             | The issuer URL.
             |--------------------------------------------------------------------------
             |
