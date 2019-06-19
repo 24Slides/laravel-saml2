@@ -9,13 +9,13 @@ return [
     |
     | If "useRoutes" set to true, the package defines five new routes:
     |
-    | Method | URI                      | Name
-    | -------|--------------------------|------------------
-    | POST   | {routesPrefix}/acs       | saml.acs
-    | GET    | {routesPrefix}/login     | saml.login
-    | GET    | {routesPrefix}/logout    | saml.logout
-    | GET    | {routesPrefix}/metadata  | saml.metadata
-    | GET    | {routesPrefix}/sls       | saml.sls
+    | Method | URI                               | Name
+    | -------|-----------------------------------|------------------
+    | POST   | {routesPrefix}/{idpKey}/acs       | saml.acs
+    | GET    | {routesPrefix}/{idpKey}/login     | saml.login
+    | GET    | {routesPrefix}/{idpKey}/logout    | saml.logout
+    | GET    | {routesPrefix}/{idpKey}/metadata  | saml.metadata
+    | GET    | {routesPrefix}/{idpKey}/sls       | saml.sls
     |
     */
 
@@ -215,18 +215,6 @@ return [
     */
 
     'idp' => [
-
-        /*
-        |--------------------------------------------------------------------------
-        | Default Identity Provider settings.
-        |--------------------------------------------------------------------------
-        |
-        | You may define an identity provider to use setting from by default
-        | in case if processing IdP cannot be resolved by incoming request.
-        |
-        */
-
-        'default' => env('SAML2_IDP_DEFAULT', 'oneLogin'),
 
         /*
         |--------------------------------------------------------------------------
