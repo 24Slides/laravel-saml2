@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\Facade;
 /**
  * Class Saml2Auth
  *
+ * @method static string|null getResolvedIdPKey()
+ *
  * @package Slides\Saml2\Facades
  */
 class Auth extends Facade

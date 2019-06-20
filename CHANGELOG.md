@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2019-06-20
+
+### Added
+- Refactored the way of resolving identity provider, now we take it from URL
+- Implemented helper saml_idp_key() to retrieve a resolved IdP
+- Implemented helpers saml_url(), saml_route() to generate SSO-friendly links (fx. on emails)
+
+### Fixed
+- Fixed redirecting to a custom URL on login request using the `returnTo` query parameter
+
+### Removed
+- Removed referrer URLs from config parameters
+
 ## [1.1.3] - 2019-02-25
 
 ### Added

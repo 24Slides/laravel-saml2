@@ -2,6 +2,9 @@
 
 namespace Slides\Saml2;
 
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Request;
+
 /**
  * Class IdpResolver
  *
@@ -17,13 +20,6 @@ class IdpResolver
     protected $idpConfig;
 
     /**
-     * The referrer URL.
-     *
-     * @var string
-     */
-    protected $referrer;
-
-    /**
      * The last resolved Identity Provider.
      *
      * @var string
@@ -34,69 +30,48 @@ class IdpResolver
      * IdpResolver constructor.
      *
      * @param array $idpConfig
-     * @param string $referrer
      */
-    public function __construct(array $idpConfig, $referrer)
+    public function __construct(array $idpConfig)
     {
         $this->idpConfig = $idpConfig;
-        $this->referrer = $referrer;
     }
 
     /**
      * Resolve an Identity Provider by incoming request.
      *
-     * @return array
+     * @return array|null
      */
     public function resolve()
     {
-        foreach ($this->idpConfig as $key => $config) {
-            if($key === 'default') {
-                continue;
-            }
+        if(!$idpKey = Request::segment(2)) {
+            Log::debug('[saml2] IdP is not present in the URL so cannot be resolved', [
+                'url' => Request::fullUrl()
+            ]);
 
-            if(strpos($this->referrer, $config['url']) !== false) {
-                $this->lastResolved = $key;
-
-                return $config;
-            }
+            return null;
         }
 
-        if(!$default = $this->retrieveDefaultIdP()) {
-            throw new \InvalidArgumentException('Default IdP is not defined');
+        if(!array_key_exists($idpKey, $this->idpConfig)) {
+            Log::debug('[saml2] IdP key ' . $idpKey . ' is not listed in your config', [
+                'idpKey' => $idpKey,
+                'idpKeys' => array_keys($this->idpConfig)
+            ]);
+
+            return null;
         }
 
-        $this->lastResolved = $this->defaultIdPKey();
+        $this->lastResolved = $idpKey;
 
-        return $default;
+        return $this->idpConfig[$idpKey];
     }
 
     /**
      * Get the latest resolved IdP's key.
      *
-     * @return string
-     */
-    public function getLastResolvedKey(): string
-    {
-        return $this->lastResolved;
-    }
-
-    /**
-     * Get the default IdP config.
-     *
-     * @return array|null
-     */
-    protected function retrieveDefaultIdP()
-    {
-        return array_get($this->idpConfig, $this->defaultIdPKey());
-    }
-
-    /**
-     * Get the default's IdP key.
-     *
      * @return string|null
      */
-    protected function defaultIdPKey()
+    public function getLastResolvedKey()
     {
-        return array_get($this->idpConfig, 'default');
+        return $this->lastResolved;
     }
 }
