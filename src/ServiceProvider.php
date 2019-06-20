@@ -80,7 +80,7 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
      */
     public function register()
     {
-        if($this->app->runningInConsole() || !$this->registerAuthenticationHandler()) {
+        if(!$this->urlMatchesNeededPrefix() || !$this->registerAuthenticationHandler()) {
             return;
         }
 
@@ -116,6 +116,20 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
         });
 
         return true;
+    }
+
+    /**
+     * Check whether current URL is matching needed prefix.
+     *
+     * @return bool
+     */
+    protected function urlMatchesNeededPrefix(): bool
+    {
+        return !$this->app->runningInConsole()
+            && \Illuminate\Support\Str::startsWith(
+                $this->app['request']->path,
+                $this->app['config']['saml2']['routesPrefix']
+            );
     }
 
     /**
@@ -200,6 +214,8 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
         $config = ($this->idpResolver = new IdpResolver($config))->resolve();
 
         $this->resolvedIdpKey = $this->idpResolver->getLastResolvedKey();
+
+        session()->flash('saml2.idpKey', $this->resolvedIdpKey);
 
         return $config;
     }

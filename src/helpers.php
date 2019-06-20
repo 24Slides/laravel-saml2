@@ -60,6 +60,6 @@ if (!function_exists('saml_idp_key'))
      */
     function saml_idp_key()
     {
-        return \Slides\Saml2\Facades\Auth::getResolvedIdPKey();
+        return session()->get('saml2.idpKey');
     }
 }
