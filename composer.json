@@ -25,7 +25,10 @@
     "autoload": {
         "psr-4": {
             "Slides\\Saml2\\": "src/"
-        }
+        },
+        "files": [
+            "src/helpers.php"
+        ]
     },
     "extra": {
         "laravel": {
