@@ -127,8 +127,8 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
     {
         return !$this->app->runningInConsole()
             && \Illuminate\Support\Str::startsWith(
-                $this->app['request']->path,
-                $this->app['config']['saml2']['routesPrefix']
+                $this->app['request']->path(),
+                ltrim($this->app['config']['saml2']['routesPrefix'], '/')
             );
     }
 
