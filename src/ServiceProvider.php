@@ -35,13 +35,6 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
     protected $resolvedIdpKey;
 
     /**
-     * Whether initialization was aborted.
-     *
-     * @var bool
-     */
-    protected $aborted = false;
-
-    /**
      * Bootstrap the application events.
      *
      * @return void
@@ -88,7 +81,6 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
     public function register()
     {
         if($this->app->runningInConsole() || !$this->registerAuthenticationHandler()) {
-            $this->aborted = true;
             return;
         }
 
