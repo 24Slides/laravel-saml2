@@ -21,9 +21,18 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
     protected $defer = false;
 
     /**
+     * Identity Provider resolver.
+     *
      * @var IdpResolver
      */
     protected $idpResolver;
+
+    /**
+     * The resolved IdP key.
+     *
+     * @var string
+     */
+    protected $resolvedIdpKey;
 
     /**
      * Bootstrap the application events.
@@ -71,7 +80,9 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
      */
     public function register()
     {
-        $this->registerAuthenticationHandler();
+        if(!$this->urlMatchesNeededPrefix() || !$this->registerAuthenticationHandler()) {
+            return;
+        }
 
         $this->app->singleton('Slides\Saml2\Auth', function ($app) {
             return new \Slides\Saml2\Auth(
@@ -84,20 +95,41 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
     /**
      * Register the authentication handler.
      *
-     * @return void
+     * @return bool
      */
     protected function registerAuthenticationHandler()
     {
-        $this->app->singleton('OneLogin_Saml2_Auth', function ($app) {
+        if(!$idpConfig = $this->resolveIdentityProvider($this->app['config']['saml2']['idp'])) {
+            \Illuminate\Support\Facades\Log::debug('[saml2] IdP is not resolved, skipping initialization');
+            return false;
+        }
+
+        $this->app->singleton('OneLogin_Saml2_Auth', function ($app) use ($idpConfig) {
             $config = $app['config']['saml2'];
 
             $this->setConfigDefaultValues($config);
 
             $oneLoginConfig = $config;
-            $oneLoginConfig['idp'] = $this->resolveIdentityProvider($config['idp']);
+            $oneLoginConfig['idp'] = $idpConfig;
 
             return new OneLoginAuth($this->normalizeConfigParameters($oneLoginConfig));
         });
+
+        return true;
+    }
+
+    /**
+     * Check whether current URL is matching needed prefix.
+     *
+     * @return bool
+     */
+    protected function urlMatchesNeededPrefix(): bool
+    {
+        return !$this->app->runningInConsole()
+            && \Illuminate\Support\Str::startsWith(
+                $this->app['request']->path(),
+                ltrim($this->app['config']['saml2']['routesPrefix'], '/')
+            );
     }
 
     /**
@@ -108,9 +140,9 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
     protected function configDefaultValues()
     {
         return [
-            'sp.entityId' => URL::route('saml.metadata'),
-            'sp.assertionConsumerService.url' => URL::route('saml.acs'),
-            'sp.singleLogoutService.url' => URL::route('saml.sls')
+            'sp.entityId' => URL::route('saml.metadata', ['idpKey' => $this->resolvedIdpKey]),
+            'sp.assertionConsumerService.url' => URL::route('saml.acs', ['idpKey' => $this->resolvedIdpKey]),
+            'sp.singleLogoutService.url' => URL::route('saml.sls', ['idpKey' => $this->resolvedIdpKey])
         ];
     }
 
@@ -175,11 +207,16 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
      *
      * @param array $config The IdPs config.
      *
-     * @return array
+     * @return array|null
      */
-    protected function resolveIdentityProvider(array $config): array
+    protected function resolveIdentityProvider(array $config)
     {
-        return ($this->idpResolver = new IdpResolver($config, URL::previous()))
-            ->resolve();
+        $config = ($this->idpResolver = new IdpResolver($config))->resolve();
+
+        $this->resolvedIdpKey = $this->idpResolver->getLastResolvedKey();
+
+        session()->flash('saml2.idpKey', $this->resolvedIdpKey);
+
+        return $config;
     }
 }

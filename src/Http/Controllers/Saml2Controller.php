@@ -110,17 +110,21 @@ class Saml2Controller extends Controller
     /**
      * Initiate a login request.
      *
+     * @param Illuminate\Http\Request $request
+     *
      * @return void
      *
      * @throws OneLoginError
      */
-    public function login()
+    public function login(Request $request)
     {
-        $this->auth->login(config('saml2.loginRoute'));
+        $this->auth->login($request->query('returnTo', config('saml2.loginRoute')));
     }
 
     /**
      * Initiate a logout request.
+     *
+     * @param Illuminate\Http\Request $request
      *
      * @return void
      *
