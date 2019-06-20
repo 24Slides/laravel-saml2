@@ -17,7 +17,9 @@ if (!function_exists('saml_url'))
         $target = \Illuminate\Support\Facades\URL::to($path, $parameters, $secure);
 
         if(!$idpKey) {
-            $idpKey = saml_idp_key();
+            if(!$idpKey = saml_idp_key()) {
+                return $target;
+            }
         }
 
         return \Illuminate\Support\Facades\URL::route('saml.login', ['idpKey' => $idpKey, 'returnTo' => $target]);
@@ -40,7 +42,9 @@ if (!function_exists('saml_route'))
         $target = \Illuminate\Support\Facades\URL::route($name, $parameters, true);
 
         if(!$idpKey) {
-            $idpKey = saml_idp_key();
+            if(!$idpKey = saml_idp_key()) {
+                return $target;
+            }
         }
 
         return \Illuminate\Support\Facades\URL::route('saml.login', ['idpKey' => $idpKey, 'returnTo' => $target]);
