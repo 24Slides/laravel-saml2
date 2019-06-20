@@ -91,31 +91,29 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
      */
     public function register()
     {
-        $this->registerAuthenticationHandler();
-
-        if(!$this->aborted) {
-            $this->app->singleton('Slides\Saml2\Auth', function ($app) {
-                return new \Slides\Saml2\Auth(
-                    $app['OneLogin_Saml2_Auth'],
-                    $this->idpResolver->getLastResolvedKey()
-                );
-            });
+        if($this->app->runningInConsole() || !$this->registerAuthenticationHandler()) {
+            $this->aborted = true;
+            return;
         }
+
+        $this->app->singleton('Slides\Saml2\Auth', function ($app) {
+            return new \Slides\Saml2\Auth(
+                $app['OneLogin_Saml2_Auth'],
+                $this->idpResolver->getLastResolvedKey()
+            );
+        });
     }
 
     /**
      * Register the authentication handler.
      *
-     * @return void
+     * @return bool
      */
     protected function registerAuthenticationHandler()
     {
         if(!$idpConfig = $this->resolveIdentityProvider($this->app['config']['saml2']['idp'])) {
             \Illuminate\Support\Facades\Log::debug('[saml2] IdP is not resolved, skipping initialization');
-
-            $this->aborted = true;
-
-            return;
+            return false;
         }
 
         $this->app->singleton('OneLogin_Saml2_Auth', function ($app) use ($idpConfig) {
@@ -128,6 +126,8 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
 
             return new OneLoginAuth($this->normalizeConfigParameters($oneLoginConfig));
         });
+
+        return true;
     }
 
     /**
