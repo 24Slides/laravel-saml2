@@ -20,7 +20,7 @@ class CreateSaml2TenantsTable extends Migration
             $table->string('idp_entity_id');
             $table->string('idp_login_url');
             $table->string('idp_logout_url');
-            $table->string('idp_x509_cert');
+            $table->text('idp_x509_cert');
             $table->json('metadata');
             $table->timestamps();
             $table->softDeletes();
