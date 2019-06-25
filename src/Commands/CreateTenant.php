@@ -24,6 +24,7 @@ class CreateTenant extends \Illuminate\Console\Command
                             { --entityId= : IdP Issuer URL }
                             { --loginUrl= : IdP Sign on URL }
                             { --logoutUrl= : IdP Logout URL }
+                            { --x509cert= : x509 certificate (base64) }
                             { --metadata= : A custom metadata }';
 
     /**
@@ -72,6 +73,11 @@ class CreateTenant extends \Illuminate\Console\Command
             return;
         }
 
+        if (!$x509cert = $this->option('x509cert')) {
+            $this->error('x509 certificate (base64) must be passed as an option --x509cert');
+            return;
+        }
+
         $key = $this->option('key');
         $metadata = ConsoleHelper::stringToArray($this->option('metadata'));
 
@@ -91,6 +97,7 @@ class CreateTenant extends \Illuminate\Console\Command
             'idp_entity_id' => $entityId,
             'idp_login_url' => $loginUrl,
             'idp_logout_url' => $logoutUrl,
+            'idp_x509_cert' => $x509cert,
             'metadata' => $metadata,
         ]);
 

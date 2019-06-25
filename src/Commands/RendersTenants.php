@@ -60,6 +60,7 @@ trait RendersTenants
             'Entity ID' => $tenant->idp_entity_id,
             'Login URL' => $tenant->idp_login_url,
             'Logout URL' => $tenant->idp_logout_url,
+            'x509 cert' => $tenant->idp_x509_cert,
             'Metadata' => $this->renderArray($tenant->metadata ?: []),
             'Created' => $tenant->created_at->toDateTimeString(),
             'Updated' => $tenant->updated_at->toDateTimeString(),
