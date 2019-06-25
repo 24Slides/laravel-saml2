@@ -2,6 +2,8 @@
 
 namespace Slides\Saml2\Commands;
 
+use Illuminate\Support\Str;
+
 /**
  * Class CreateTenant
  *
@@ -60,7 +62,7 @@ trait RendersTenants
             'Entity ID' => $tenant->idp_entity_id,
             'Login URL' => $tenant->idp_login_url,
             'Logout URL' => $tenant->idp_logout_url,
-            'x509 cert' => $tenant->idp_x509_cert,
+            'x509 cert' => Str::limit($tenant->idp_x509_cert, 50),
             'Metadata' => $this->renderArray($tenant->metadata ?: []),
             'Created' => $tenant->created_at->toDateTimeString(),
             'Updated' => $tenant->updated_at->toDateTimeString(),

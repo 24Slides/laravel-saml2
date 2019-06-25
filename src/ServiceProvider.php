@@ -66,6 +66,7 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
     {
         $this->commands([
             \Slides\Saml2\Commands\CreateTenant::class,
+            \Slides\Saml2\Commands\UpdateTenant::class,
             \Slides\Saml2\Commands\DeleteTenant::class,
             \Slides\Saml2\Commands\RestoreTenant::class,
             \Slides\Saml2\Commands\ListTenants::class,
