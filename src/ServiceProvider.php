@@ -43,6 +43,8 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
     {
         $this->bootRoutes();
         $this->bootPublishes();
+        $this->bootCommands();
+        $this->loadMigrations();
 
         if ($this->app['config']->get('saml2.proxyVars', false)) {
             OneLoginUtils::setProxyVars(true);
@@ -71,6 +73,31 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
         $this->publishes([
             __DIR__ . '../config/saml2.php' => config_path('saml2.php'),
         ]);
+    }
+
+    /**
+     * Bootstrap the console commands.
+     *
+     * @return void
+     */
+    protected function bootCommands()
+    {
+        $this->commands([
+            \Slides\Saml2\Commands\CreateTenant::class,
+            \Slides\Saml2\Commands\DeleteTenant::class,
+            \Slides\Saml2\Commands\RestoreTenant::class,
+            \Slides\Saml2\Commands\ListTenants::class,
+        ]);
+    }
+
+    /**
+     * Load the package migrations.
+     *
+     * @return void
+     */
+    protected function loadMigrations()
+    {
+        $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
     }
 
     /**
