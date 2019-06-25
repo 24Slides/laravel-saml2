@@ -16,32 +16,17 @@ use OneLogin\Saml2\Error as OneLoginError;
 class Saml2Controller extends Controller
 {
     /**
-     * The authentication handler.
-     *
-     * @var Auth
-     */
-    protected $auth;
-
-    /**
-     * Saml2Controller constructor.
+     * Render the metadata.
      *
      * @param Auth $auth
-     */
-    public function __construct(Auth $auth)
-    {
-        $this->auth = $auth;
-    }
-
-    /**
-     * Render the metadata.
      *
      * @return \Illuminate\Support\Facades\Response
      *
      * @throws OneLoginError
      */
-    public function metadata()
+    public function metadata(Auth $auth)
     {
-        $metadata = $this->auth->getMetadata();
+        $metadata = $auth->getMetadata();
 
         return response($metadata, 200, ['Content-Type' => 'text/xml']);
     }
@@ -51,18 +36,20 @@ class Saml2Controller extends Controller
      *
      * Fires "SignedIn" event if a valid user is found.
      *
+     * @param Auth $auth
+     *
      * @return \Illuminate\Support\Facades\Redirect
      *
      * @throws OneLoginError
      * @throws \OneLogin\Saml2\ValidationError
      */
-    public function acs()
+    public function acs(Auth $auth)
     {
-        $errors = $this->auth->acs();
+        $errors = $auth->acs();
 
         if (!empty($errors)) {
-            logger()->error('saml2.error_detail', ['error' => $this->auth->getLastErrorReason()]);
-            session()->flash('saml2.error_detail', [$this->auth->getLastErrorReason()]);
+            logger()->error('saml2.error_detail', ['error' => $auth->getLastErrorReason()]);
+            session()->flash('saml2.error_detail', [$auth->getLastErrorReason()]);
 
             logger()->error('saml2.error', $errors);
             session()->flash('saml2.error', $errors);
@@ -70,16 +57,15 @@ class Saml2Controller extends Controller
             return redirect(config('saml2.errorRoute'));
         }
 
-        $user = $this->auth->getSaml2User();
+        $user = $auth->getSaml2User();
 
-        event(new SignedIn($user, $this->auth));
+        event(new SignedIn($user, $auth));
 
         $redirectUrl = $user->getIntendedUrl();
 
         if ($redirectUrl !== null) {
             return redirect($redirectUrl);
         } else {
-
             return redirect(config('saml2.loginRoute'));
         }
     }
@@ -91,14 +77,16 @@ class Saml2Controller extends Controller
      *
      * This means the user logged out of the SSO infrastructure, you 'should' log him out locally too.
      *
+     * @param Auth $auth
+     *
      * @return \Illuminate\Support\Facades\Redirect
      *
      * @throws OneLoginError
      * @throws \Exception
      */
-    public function sls()
+    public function sls(Auth $auth)
     {
-        $error = $this->auth->sls(config('saml2.retrieveParametersFromServer'));
+        $error = $auth->sls(config('saml2.retrieveParametersFromServer'));
 
         if (!empty($error)) {
             throw new \Exception("Could not log out");
@@ -111,28 +99,30 @@ class Saml2Controller extends Controller
      * Initiate a login request.
      *
      * @param Illuminate\Http\Request $request
+     * @param Auth $auth
      *
      * @return void
      *
      * @throws OneLoginError
      */
-    public function login(Request $request)
+    public function login(Request $request, Auth $auth)
     {
-        $this->auth->login($request->query('returnTo', config('saml2.loginRoute')));
+        $auth->login($request->query('returnTo', config('saml2.loginRoute')));
     }
 
     /**
      * Initiate a logout request.
      *
      * @param Illuminate\Http\Request $request
+     * @param Auth $auth
      *
      * @return void
      *
      * @throws OneLoginError
      */
-    public function logout(Request $request)
+    public function logout(Request $request, Auth $auth)
     {
-        $this->auth->logout(
+        $auth->logout(
             $request->query('returnTo'),
             $request->query('nameId'),
             $request->query('sessionIndex')

@@ -3,6 +3,7 @@
 namespace Slides\Saml2;
 
 use OneLogin\Saml2\Auth as OneLoginAuth;
+use Slides\Saml2\Models\Tenant;
 
 /**
  * Class Saml2User
@@ -19,13 +20,22 @@ class Saml2User
     protected $auth;
 
     /**
+     * The tenant user belongs to.
+     *
+     * @var Tenant
+     */
+    protected $tenant;
+
+    /**
      * Saml2User constructor.
      *
      * @param OneLoginAuth $auth
+     * @param Tenant $tenant
      */
-    public function __construct(OneLoginAuth $auth)
+    public function __construct(OneLoginAuth $auth, Tenant $tenant)
     {
         $this->auth = $auth;
+        $this->tenant = $tenant;
     }
 
     /**
@@ -151,5 +161,27 @@ class Saml2User
     public function getNameId()
     {
         return $this->auth->getNameId();
+    }
+
+    /**
+     * Set a tenant
+     *
+     * @param Tenant $tenant
+     *
+     * @return void
+     */
+    public function setTenant(Tenant $tenant)
+    {
+        $this->tenant = $tenant;
+    }
+
+    /**
+     * Get a resolved tenant.
+     *
+     * @return Tenant|null
+     */
+    public function getTenant()
+    {
+        return $this->tenant;
     }
 }

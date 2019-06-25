@@ -5,6 +5,7 @@ namespace Slides\Saml2;
 use OneLogin\Saml2\Auth as OneLoginAuth;
 use OneLogin\Saml2\Error as OneLoginError;
 use Slides\Saml2\Events\SignedOut;
+use Slides\Saml2\Models\Tenant;
 
 /**
  * Class Auth
@@ -21,22 +22,22 @@ class Auth
     protected $base;
 
     /**
-     * The name of the resolved identity provider.
+     * The resolved tenant.
      *
-     * @var string
+     * @var Tenant
      */
-    protected $resolvedIdPKey;
+    protected $tenant;
 
     /**
      * Auth constructor.
      *
      * @param OneLoginAuth $auth
-     * @param string $resolvedIdPKey
+     * @param Tenant $tenant
      */
-    public function __construct(OneLoginAuth $auth, string $resolvedIdPKey = null)
+    public function __construct(OneLoginAuth $auth, Tenant $tenant)
     {
         $this->base = $auth;
-        $this->resolvedIdPKey = $resolvedIdPKey;
+        $this->tenant = $tenant;
     }
 
     /**
@@ -56,7 +57,7 @@ class Auth
      */
     public function getSaml2User()
     {
-        return new Saml2User($this->base);
+        return new Saml2User($this->base, $this->tenant);
     }
 
     /**
@@ -222,22 +223,24 @@ class Auth
     }
 
     /**
-     * Set an Identity Provider.
+     * Set a tenant
      *
-     * @param string $key
+     * @param Tenant $tenant
+     *
+     * @return void
      */
-    public function setResolvedIdPKey(string $key)
+    public function setTenant(Tenant $tenant)
     {
-        $this->resolvedIdPKey = $key;
+        $this->tenant = $tenant;
     }
 
     /**
-     * Get an Identity Provider.
+     * Get a resolved tenant.
      *
-     * @return string|null
+     * @return Tenant|null
      */
-    public function getResolvedIdPKey()
+    public function getTenant()
     {
-        return $this->resolvedIdPKey;
+        return $this->tenant;
     }
 }

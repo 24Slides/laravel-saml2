@@ -87,4 +87,19 @@ class TenantRepository
             ->where('id', $id)
             ->first();
     }
+
+    /**
+     * Find a tenant by UUID.
+     *
+     * @param int $uuid
+     * @param bool $withTrashed
+     *
+     * @return Tenant|\Illuminate\Database\Eloquent\Model|null
+     */
+    public function findByUUID(string $uuid, bool $withTrashed = true)
+    {
+        return $this->query($withTrashed)
+            ->where('uuid', $uuid)
+            ->first();
+    }
 }
