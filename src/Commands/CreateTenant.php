@@ -101,14 +101,7 @@ class CreateTenant extends \Illuminate\Console\Command
 
         $this->info("The tenant #{$tenant->id} ({$tenant->uuid}) was successfully created.");
 
-        $this->output->section('Credentials for the tenant');
-        $this->output->text([
-            'Identifier (Entity ID): <comment>' . route('saml.metadata', ['uuid' => $tenant->uuid]) . '</comment>',
-            'Reply URL (Assertion Consumer Service URL): <comment>' . route('saml.acs', ['uuid' => $tenant->uuid]) . '</comment>',
-            'Sign on URL: <comment>' . route('saml.login', ['uuid' => $tenant->uuid]) . '</comment>',
-            'Logout URL: <comment>' . route('saml.logout', ['uuid' => $tenant->uuid]) . '</comment>',
-            'Relay State: <comment>' . config('saml2.loginRoute') . ' (optional)</comment>'
-        ]);
+        $this->renderTenantCredentials($tenant);
 
         $this->output->newLine();
     }

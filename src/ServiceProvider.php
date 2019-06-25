@@ -87,6 +87,7 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
             \Slides\Saml2\Commands\DeleteTenant::class,
             \Slides\Saml2\Commands\RestoreTenant::class,
             \Slides\Saml2\Commands\ListTenants::class,
+            \Slides\Saml2\Commands\TenantCredentials::class
         ]);
     }
 

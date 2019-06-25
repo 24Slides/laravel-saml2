@@ -68,6 +68,26 @@ trait RendersTenants
     }
 
     /**
+     * Render a tenant credentials.
+     *
+     * @param \Slides\Saml2\Models\Tenant $tenant
+     *
+     * @return void
+     */
+    protected function renderTenantCredentials(\Slides\Saml2\Models\Tenant $tenant)
+    {
+        $this->output->section('Credentials for the tenant');
+
+        $this->getOutput()->text([
+            'Identifier (Entity ID): <comment>' . route('saml.metadata', ['uuid' => $tenant->uuid]) . '</comment>',
+            'Reply URL (Assertion Consumer Service URL): <comment>' . route('saml.acs', ['uuid' => $tenant->uuid]) . '</comment>',
+            'Sign on URL: <comment>' . route('saml.login', ['uuid' => $tenant->uuid]) . '</comment>',
+            'Logout URL: <comment>' . route('saml.logout', ['uuid' => $tenant->uuid]) . '</comment>',
+            'Relay State: <comment>' . config('saml2.loginRoute') . ' (optional)</comment>'
+        ]);
+    }
+
+    /**
      * Print an array to a string.
      *
      * @param array $array
