@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Facade;
 /**
  * Class Saml2Auth
  *
- * @method static string|null getResolvedIdPKey()
+ * @method static \Slides\Saml2\Models\Tenant|null getTenant()
  *
  * @package Slides\Saml2\Facades
  */

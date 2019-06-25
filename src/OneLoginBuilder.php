@@ -74,30 +74,15 @@ class OneLoginBuilder
                 'entityId' => $this->tenant->idp_entity_id,
                 'singleSignOnService' => ['url' => $this->tenant->idp_login_url],
                 'singleLogoutService' => ['url' => $this->tenant->idp_logout_url],
-                'certs' => ['x509' => $this->tenant->idp_x509_cert]
+                'x509cert' => $this->tenant->idp_x509_cert
             ];
 
-            return new OneLoginAuth($this->normalizeConfigParameters($oneLoginConfig));
+            return new OneLoginAuth($oneLoginConfig);
         });
 
         $this->app->singleton('Slides\Saml2\Auth', function ($app) {
             return new \Slides\Saml2\Auth($app['OneLogin_Saml2_Auth'], $this->tenant);
         });
-    }
-
-    /**
-     * Normalize config parameters for OneLogin authentication handler.
-     *
-     * @param array $config
-     *
-     * @return array
-     */
-    protected function normalizeConfigParameters(array $config)
-    {
-        $config['idp']['x509cert'] = array_get($config['idp'], 'certs.x509');
-        $config['idp']['certFingerprint'] = array_get($config['idp'], 'certs.fingerprint');
-
-        return $config;
     }
 
     /**
