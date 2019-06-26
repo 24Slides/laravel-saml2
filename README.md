@@ -67,10 +67,11 @@ When request comes to an application, the middleware parses UUID and resolves th
 You can easily manage tenants using the following console commands:
 
 - `artisan saml2:create-tenant`
-- `artisan saml2-update-tenant`
-- `artisan saml2-delete-tenant`
-- `artisan saml2-restore-tenant`
-- `artisan saml2-list-tenants`
+- `artisan saml2:update-tenant`
+- `artisan saml2:delete-tenant`
+- `artisan saml2:restore-tenant`
+- `artisan saml2:list-tenants`
+- `artisan saml2:tenant-credentials`
 
 > To learn their options, run a command with `-h` parameter.
 

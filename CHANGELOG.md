@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Helper functions `saml_url()`, `saml_route()`, `saml_tenant_uuid()`
 - Initializing SP in middleware
 - Database migrations
+- Console commands `saml2:create-tenant`, `saml2:update-tenant`, `saml2:delete-tenant`, 
+`saml2:restore-tenant`, `saml2:list-tenants`, `saml2:tenant-credentials`
 
 ### Fixed
 - Routes are now accepting UUID of tenants instead of `idpKey`
