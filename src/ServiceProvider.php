@@ -28,9 +28,6 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
         $this->bootPublishes();
         $this->bootCommands();
         $this->loadMigrations();
-
-        \URL::forceRootUrl(env('APP_URL'));
-        \URL::forceScheme('https');
     }
 
     /**

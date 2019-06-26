@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - 2019-06-26
+
+### Added
+- Completely changed the way of supporting multiple Identity Providers by adding Tenants
+- Helper functions `saml_url()`, `saml_route()`, `saml_tenant_uuid()`
+- Initializing SP in middleware
+- Database migrations
+- Console commands `saml2:create-tenant`, `saml2:update-tenant`, `saml2:delete-tenant`, 
+`saml2:restore-tenant`, `saml2:list-tenants`, `saml2:tenant-credentials`
+
+### Fixed
+- Routes are now accepting UUID of tenants instead of `idpKey`
+
+### Removed
+- IdP Resolver, now it resolves by `ResolveTenant` middleware by matching UUID on routes
+- Building SSO SP in Laravel ServiceProvider
+
 ## [1.2.0] - 2019-06-20
 
 ### Added
@@ -49,7 +66,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Replaced underscores with dots in routes
 - Minor refactoring, formatting
 
-[Unreleased]: https://github.com/24Slides/laravel-saml2/compare/1.1.1...HEAD
+[Unreleased]: https://github.com/24Slides/laravel-saml2/compare/2.0.0...HEAD
+[2.0.0]: https://github.com/24Slides/laravel-saml2/compare/1.2.0...2.0.0
+[1.2.0]: https://github.com/24Slides/laravel-saml2/compare/1.1.3...1.2.0
 [1.1.3]: https://github.com/24Slides/laravel-saml2/compare/1.1.2...1.1.3
 [1.1.2]: https://github.com/24Slides/laravel-saml2/compare/1.1.1...1.1.2
 [1.1.1]: https://github.com/24Slides/laravel-saml2/compare/1.1.0...1.1.1
