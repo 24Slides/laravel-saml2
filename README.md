@@ -20,7 +20,7 @@ This package turns your application into Service Provider with the support of mu
 
 ### Installing
 
-Install dependency via Composer
+##### Step 1. Install dependency
 
 ```
 composer require 24slides/laravel-saml2
@@ -42,43 +42,61 @@ For older versions, you have to add the service provider and alias to your `conf
 ]
 ```
 
-Publish the configuration file:
+##### Step 2. Publish the configuration file.
 
 ```
 php artisan vendor:publish --provider="Slides\Saml2\ServiceProvider
 ```
 
+##### Step 3. Run migrations
+
+```
+php artisan migrate
+```
+
 ### Configuring
 
-Once you publish your `saml2.php` to `app/config`, you need to configure your SP and IdP servers.
-Almost all parameters are configurable through environment variables.
+Once you publish `saml2.php` to `app/config`, you need to configure your SP. Most of options are inherited from [OneLogin Toolkit](https://github.com/onelogin/php-saml), so you can check documentation there.
 
-Remember that you don't need to implement those routes, but you'll need to add them to your IDP configuration. For example, if you use SimpleSAMLphp, add the following to `/metadata/sp-remote.php`
+#### Identity Providers (IdPs)
 
-To make sure it works, check metadata at `http://yourdomain/saml2/metadata`.
+To distinguish between identity providers there is an entity called Tenant that represent each IdP.
+
+When request comes to an application, the middleware parses UUID and resolves the Tenant.
+
+You can easily manage tenants using the following console commands:
+
+- `artisan saml2:create-tenant`
+- `artisan saml2-update-tenant`
+- `artisan saml2-delete-tenant`
+- `artisan saml2-restore-tenant`
+- `artisan saml2-list-tenants`
+
+> To learn their options, run a command with `-h` parameter.
+
+Each Tenant has the following attributes:
+
+- **UUID** — a unique identifier that allows to resolve a tenannt and configure SP correspondingly
+- **Key** — a custom key to use for application needs
+- **Entity ID** — [Identity Provider Entity ID](https://spaces.at.internet2.edu/display/InCFederation/Entity+IDs)
+- **Login URL** — Identity Provider Single Sign On URL
+- **Logout URL** — Identity Provider Logout URL
+- **x509 certificate** — The certificate provided by Identity Provider in **base64** format
+- **Metadata** — Custom parameters for your application needs
 
 #### Default routes
 
 The following routes are registered by default:
 
-- `GET saml2/login`
-- `GET saml2/logout`
-- `GET saml2/metadata`
-- `POST saml2/acs`
-- `POST saml2/sls`
+- `GET saml2/{uuid}/login`
+- `GET saml2/{uuid}/logout`
+- `GET saml2/{uuid}/metadata`
+- `POST saml2/{uuid}/acs`
+- `POST saml2/{uuid}/sls`
 
-You may disabled them by setting `saml2.useRoutes` to `false`.
+You may disable them by setting `saml2.useRoutes` to `false`.
 
 > `/saml2` prefix can be changed via `saml2.routesPrefix` config parameter.
-
-#### Multiple Identity Providers
-
-You may define multiple IdPs you want to integrate.
-
-It works by resolving requester referrer URL. When request comes to application, 
-we initialize matching referrer URL with IdP URL (eg. `SAML2_IDP_ONE_LOGIN_URL`)
-
-In case if IdP cannot be resolved, `idp.default` will be initialized. 
 
 ## Usage
 
@@ -144,7 +162,7 @@ protected $middlewareGroups = [
 
 There are two ways the user can logout:
 - By logging out in your app. In this case you SHOULD notify the IdP first so it'll close the global session.
-- By logging out of the global SSO Session. In this case the IdP will notify you on `/saml2/slo` endpoint (already provided).
+- By logging out of the global SSO Session. In this case the IdP will notify you on `/saml2/{uuid}/slo` endpoint (already provided).
 
 For the first case, call `Saml2Auth::logout();` or redirect the user to the route `saml.logout` which does just that. 
 Do not close the session immediately as you need to receive a response confirmation from the IdP (redirection). 
@@ -160,6 +178,92 @@ Event::listen('Slides\Saml2\Events\SignedOut', function (SignedOut $event) {
     Session::save();
 });
 ```
+
+### SSO-friendly links
+
+Sometimes, you need to create links to your application with support of SSO lifecycle. It means you expect a user to be signed in once you click on that link.
+
+The most popular example is generating links from emails, where you need to make sure when user goes to your application from email, he will be logged in.
+To solve this issue, you can use helpers that allow you create SSO-friendly routes and URLs `saml_url()` and `saml_route()`.
+
+To generate a link, you need to call one of functions and pass UUID of the tenant as a second parameter, unless your session knows that user was resolved by SSO.
+
+> To retrieve UUID based on user, you should implement login that links your internal user to a tenant.
+
+Then, it generates a link like this:
+```
+https://yourdomain/saml/63fffdd1-f416-4bed-b3db-967b6a56896b/login?returnTo=https://yourdomain.com/your/actual/link
+```
+
+Basically, when user clicks on a link, it initiates a SSO login process and redirects it back to your needed URL. 
+
+## Examples
+
+### Azure AD
+
+At this point, we assume you have an application on Azure AD that supports Single Sign On.
+
+##### Step 1. Retrieve Identity Provider credentials
+
+![](https://prnt.sc/o6tc7t)
+
+You need to retrieve the following parameters:
+
+- Login URL
+- Azure AD Identifier
+- Logout URL
+- Certificate (Base64)
+
+##### Step 2. Create a Tenant
+
+Based on information you received below, create a Tenant, like this:
+
+```
+php artisan saml2:create-tenant \
+  --key=azure_testing \
+  --entityId=https://sts.windows.net/fb536a7a-7251-4895-a09a-abd8e614c70b/ \
+  --loginUrl=https://login.microsoftonline.com/fb536a7a-7251-4895-a09a-abd8e614c70b/saml2 \
+  --logoutUrl=https://login.microsoftonline.com/common/wsfederation?wa=wsignout1.0 \
+  --x509cert="MIIC0jCCAbqgAw...CapVR4ncDVjvbq+/S" /
+  --metadata="customer:11235,anotherfield:value" // you might add some customer parameters here to simplify logging in your customer afterwards
+```
+
+Once you successfully created the tenant, you will receive the following output:
+
+```
+The tenant #1 (63fffdd1-f416-4bed-b3db-967b6a56896b) was successfully created.
+
+Credentials for the tenant
+--------------------------
+
+ Identifier (Entity ID): https://yourdomain.com/saml/63fffdd1-f416-4bed-b3db-967b6a56896b/metadata
+ Reply URL (Assertion Consumer Service URL): https://yourdomain.com/saml/63fffdd1-f416-4bed-b3db-967b6a56896b/acs
+ Sign on URL: https://yourdomain.com/saml/63fffdd1-f416-4bed-b3db-967b6a56896b/login
+ Logout URL: https://yourdomain.com/saml/63fffdd1-f416-4bed-b3db-967b6a56896b/logout
+ Relay State: / (optional)
+```
+
+##### Step 3. Configure Identity Provider
+
+Using the output below, assign parameters to your IdP on application Single-Sign-On settings page.
+
+##### Step 4. Make sure your application accessible by Azure AD
+
+Test your application directly from Azure AD and make sure it's accessible worldwide. 
+
+###### Running locally
+
+If you want to test it locally, you may use [ngrok](https://ngrok.com/).
+
+In case if you have a problem with URL creating in your application, you can overwrite host header in your nginx host 
+config file by adding the following parameters:
+
+```
+fastcgi_param HTTP_HOST your.ngrok.io;
+fastcgi_param HTTPS on;
+```
+
+> Replace `your.ngrok.io` with your actual ngrok URL 
 
 ## Tests
 
