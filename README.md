@@ -184,18 +184,18 @@ Event::listen('Slides\Saml2\Events\SignedOut', function (SignedOut $event) {
 Sometimes, you need to create links to your application with support of SSO lifecycle. It means you expect a user to be signed in once you click on that link.
 
 The most popular example is generating links from emails, where you need to make sure when user goes to your application from email, he will be logged in.
-To solve this issue, you can use helpers that allow you create SSO-friendly routes and URLs `saml_url()` and `saml_route()`.
+To solve this issue, you can use helpers that allow you create SSO-friendly routes and URLs — `saml_url()` and `saml_route()`.
 
 To generate a link, you need to call one of functions and pass UUID of the tenant as a second parameter, unless your session knows that user was resolved by SSO.
 
-> To retrieve UUID based on user, you should implement login that links your internal user to a tenant.
+> To retrieve UUID based on user, you should implement logic that links your internal user to a tenant.
 
 Then, it generates a link like this:
 ```
 https://yourdomain/saml/63fffdd1-f416-4bed-b3db-967b6a56896b/login?returnTo=https://yourdomain.com/your/actual/link
 ```
 
-Basically, when user clicks on a link, it initiates a SSO login process and redirects it back to your needed URL. 
+Basically, when user clicks on a link, it initiates SSO login process and redirects it back to your needed URL. 
 
 ## Examples
 
@@ -247,6 +247,8 @@ Credentials for the tenant
 
 Using the output below, assign parameters to your IdP on application Single-Sign-On settings page.
 
+![Azure AD](https://i.imgur.com/3hkjFLZ.png)
+
 ##### Step 4. Make sure your application accessible by Azure AD
 
 Test your application directly from Azure AD and make sure it's accessible worldwide. 
@@ -255,7 +257,7 @@ Test your application directly from Azure AD and make sure it's accessible world
 
 If you want to test it locally, you may use [ngrok](https://ngrok.com/).
 
-In case if you have a problem with URL creating in your application, you can overwrite host header in your nginx host 
+In case if you have a problem with URL creation in your application, you can overwrite host header in your nginx host 
 config file by adding the following parameters:
 
 ```
