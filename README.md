@@ -205,7 +205,7 @@ At this point, we assume you have an application on Azure AD that supports Singl
 
 ##### Step 1. Retrieve Identity Provider credentials
 
-![](https://prnt.sc/o6tc7t)
+![Azure AD](https://i.imgur.com/xKLswxB.png)
 
 You need to retrieve the following parameters:
 
