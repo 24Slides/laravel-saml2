@@ -15,6 +15,7 @@
         "php": ">=7.1",
         "ext-openssl": "*",
         "illuminate/support": "~5.4|^6.0",
+        "illuminate/database": "~5.5|^6.0",
         "onelogin/php-saml": "^3.0",
         "ramsey/uuid": "^3.8"
     },
