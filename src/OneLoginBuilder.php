@@ -7,6 +7,7 @@ use OneLogin\Saml2\Utils as OneLoginUtils;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Contracts\Container\Container;
 use Slides\Saml2\Models\Tenant;
+use Illuminate\Support\Arr;
 
 /**
  * Class OneLoginBuilder
@@ -95,8 +96,8 @@ class OneLoginBuilder
     protected function setConfigDefaultValues(array &$config)
     {
         foreach ($this->configDefaultValues() as $key => $default) {
-            if(!array_get($config, $key)) {
-                array_set($config, $key, $default);
+            if(!Arr::get($config, $key)) {
+                Arr::set($config, $key, $default);
             }
         }
     }
