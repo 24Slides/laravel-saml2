@@ -50,7 +50,7 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
     protected function bootPublishes()
     {
         $this->publishes([
-            __DIR__ . '../config/saml2.php' => config_path('saml2.php'),
+            __DIR__ . '/../config/saml2.php' => config_path('saml2.php'),
         ]);
     }
 
