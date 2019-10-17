@@ -45,7 +45,7 @@ For older versions, you have to add the service provider and alias to your `conf
 ##### Step 2. Publish the configuration file.
 
 ```
-php artisan vendor:publish --provider="Slides\Saml2\ServiceProvider
+php artisan vendor:publish --provider="Slides\Saml2\ServiceProvider"
 ```
 
 ##### Step 3. Run migrations
@@ -132,10 +132,10 @@ To define a middleware for default routes, add its name to `config/saml2.php`:
 ```
 /*
 |--------------------------------------------------------------------------
-| Middle groups to use for the SAML routes
+| Built-in routes prefix
 |--------------------------------------------------------------------------
 |
-| Note, Laravel 5.2 requires a group which includes StartSession
+| Here you may define the prefix for built-in routes.
 |
 */
 
@@ -225,7 +225,7 @@ php artisan saml2:create-tenant \
   --entityId=https://sts.windows.net/fb536a7a-7251-4895-a09a-abd8e614c70b/ \
   --loginUrl=https://login.microsoftonline.com/fb536a7a-7251-4895-a09a-abd8e614c70b/saml2 \
   --logoutUrl=https://login.microsoftonline.com/common/wsfederation?wa=wsignout1.0 \
-  --x509cert="MIIC0jCCAbqgAw...CapVR4ncDVjvbq+/S" /
+  --x509cert="MIIC0jCCAbqgAw...CapVR4ncDVjvbq+/S" \
   --metadata="customer:11235,anotherfield:value" // you might add some customer parameters here to simplify logging in your customer afterwards
 ```
 

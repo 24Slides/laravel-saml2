@@ -2,6 +2,8 @@
 
 namespace Slides\Saml2\Helpers;
 
+use Illuminate\Support\Arr;
+
 /**
  * Class ConsoleHelper
  *
@@ -32,8 +34,8 @@ class ConsoleHelper
         foreach ($items as $index => $item) {
             $item = explode($valueDelimiter, $item);
 
-            $key = array_get($item, 0);
-            $value = array_get($item, 1);
+            $key = Arr::get($item, 0);
+            $value = Arr::get($item, 1);
 
             if(is_null($value)) {
                 $value = $key;
