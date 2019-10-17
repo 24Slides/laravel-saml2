@@ -45,7 +45,7 @@ For older versions, you have to add the service provider and alias to your `conf
 ##### Step 2. Publish the configuration file.
 
 ```
-php artisan vendor:publish --provider="Slides\Saml2\ServiceProvider
+php artisan vendor:publish --provider=Slides\Saml2\ServiceProvider
 ```
 
 ##### Step 3. Run migrations
