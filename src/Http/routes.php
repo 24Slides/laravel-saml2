@@ -1,5 +1,7 @@
 <?php
 
+use Illuminate\Support\Facades\Route;
+
 Route::group([
     'prefix' => config('saml2.routesPrefix'),
     'middleware' => array_merge(['saml2.resolveTenant'], config('saml2.routesMiddleware')),

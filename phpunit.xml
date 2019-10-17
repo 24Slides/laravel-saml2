@@ -17,6 +17,12 @@
     <filter>
         <whitelist processUncoveredFilesFromWhitelist="true">
             <directory suffix=".php">src</directory>
+            <exclude>
+                <directory>src/Http</directory>
+                <directory>src/Commands</directory>
+                <directory>src/Concerns</directory>
+                <directory>src/Facades</directory>
+            </exclude>
         </whitelist>
     </filter>
     <logging>
