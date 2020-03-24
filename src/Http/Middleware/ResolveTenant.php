@@ -52,11 +52,13 @@ class ResolveTenant
             throw new NotFoundHttpException();
         }
 
-        Log::debug('[Saml2] Tenant resolved', [
-            'uuid' => $tenant->uuid,
-            'id' => $tenant->id,
-            'key' => $tenant->key
-        ]);
+        if (config('saml2.debug')) {
+            Log::debug('[Saml2] Tenant resolved', [
+                'uuid' => $tenant->uuid,
+                'id' => $tenant->id,
+                'key' => $tenant->key
+            ]);
+        }
 
         session()->flash('saml2.tenant.uuid', $tenant->uuid);
 
@@ -77,27 +79,33 @@ class ResolveTenant
     protected function resolveTenant($request)
     {
         if(!$uuid = $request->route('uuid')) {
-            Log::debug('[Saml2] Tenant UUID is not present in the URL so cannot be resolved', [
-                'url' => $request->fullUrl()
-            ]);
+            if (config('saml2.debug')) {
+                Log::debug('[Saml2] Tenant UUID is not present in the URL so cannot be resolved', [
+                    'url' => $request->fullUrl()
+                ]);
+            }
 
             return null;
         }
 
         if(!$tenant = $this->tenants->findByUUID($uuid)) {
-            Log::debug('[Saml2] Tenant doesn\'t exist', [
-                'uuid' => $uuid
-            ]);
+            if (config('saml2.debug')) {
+                Log::debug('[Saml2] Tenant doesn\'t exist', [
+                    'uuid' => $uuid
+                ]);
+            }
 
             return null;
         }
 
         if($tenant->trashed()) {
-            Log::debug('[Saml2] Tenant #' . $tenant->id. ' resolved but marked as deleted', [
-                'id' => $tenant->id,
-                'uuid' => $uuid,
-                'deleted_at' => $tenant->deleted_at->toDateTimeString()
-            ]);
+            if (config('saml2.debug')) {
+                Log::debug('[Saml2] Tenant #' . $tenant->id. ' resolved but marked as deleted', [
+                    'id' => $tenant->id,
+                    'uuid' => $uuid,
+                    'deleted_at' => $tenant->deleted_at->toDateTimeString()
+                ]);
+            }
 
             return null;
         }
