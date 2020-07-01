@@ -129,7 +129,7 @@ Event::listen(\Slides\Saml2\Events\SignedIn::class, function (\Slides\Saml2\Even
 
 To define a middleware for default routes, add its name to `config/saml2.php`:
 
-```
+```php
 /*
 |--------------------------------------------------------------------------
 | Built-in routes prefix
