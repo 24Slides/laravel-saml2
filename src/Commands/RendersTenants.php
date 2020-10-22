@@ -62,6 +62,7 @@ trait RendersTenants
             'Entity ID' => $tenant->idp_entity_id,
             'Login URL' => $tenant->idp_login_url,
             'Logout URL' => $tenant->idp_logout_url,
+            'Relay State URL' => $tenant->relay_state_url,
             'x509 cert' => Str::limit($tenant->idp_x509_cert, 50),
             'Metadata' => $this->renderArray($tenant->metadata ?: []),
             'Created' => $tenant->created_at->toDateTimeString(),
@@ -86,7 +87,7 @@ trait RendersTenants
             'Reply URL (Assertion Consumer Service URL): <comment>' . route('saml.acs', ['uuid' => $tenant->uuid]) . '</comment>',
             'Sign on URL: <comment>' . route('saml.login', ['uuid' => $tenant->uuid]) . '</comment>',
             'Logout URL: <comment>' . route('saml.logout', ['uuid' => $tenant->uuid]) . '</comment>',
-            'Relay State: <comment>' . config('saml2.loginRoute') . ' (optional)</comment>'
+            'Relay State: <comment>' . ($tenant->relay_state_url ?: config('saml2.loginRoute')) . ' (optional)</comment>'
         ]);
     }
 
