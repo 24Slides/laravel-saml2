@@ -63,11 +63,11 @@ class Saml2Controller extends Controller
 
         $redirectUrl = $user->getIntendedUrl();
 
-        if ($redirectUrl !== null) {
+        if ($redirectUrl) {
             return redirect($redirectUrl);
-        } else {
-            return redirect(config('saml2.loginRoute'));
         }
+
+        return redirect($auth->getTenant()->relay_state_url ?: config('saml2.loginRoute'));
     }
 
     /**
@@ -107,7 +107,9 @@ class Saml2Controller extends Controller
      */
     public function login(Request $request, Auth $auth)
     {
-        $auth->login($request->query('returnTo', config('saml2.loginRoute')));
+        $redirectUrl = $auth->getTenant()->relay_state_url ?: config('saml2.loginRoute');
+
+        $auth->login($request->query('returnTo', $redirectUrl));
     }
 
     /**
