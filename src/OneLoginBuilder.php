@@ -112,7 +112,28 @@ class OneLoginBuilder
         return [
             'sp.entityId' => URL::route('saml.metadata', ['uuid' => $this->tenant->uuid]),
             'sp.assertionConsumerService.url' => URL::route('saml.acs', ['uuid' => $this->tenant->uuid]),
-            'sp.singleLogoutService.url' => URL::route('saml.sls', ['uuid' => $this->tenant->uuid])
+            'sp.singleLogoutService.url' => URL::route('saml.sls', ['uuid' => $this->tenant->uuid]),
+            'sp.NameIDFormat' => $this->resolveNameIdFormatPrefix($this->tenant->name_id_format)
         ];
+    }
+
+    /**
+     * Resolve the Name ID Format prefix.
+     *
+     * @param string $format
+     *
+     * @return string
+     */
+    protected function resolveNameIdFormatPrefix(string $format): string
+    {
+        switch ($format) {
+            case 'emailAddress':
+            case 'X509SubjectName':
+            case 'WindowsDomainQualifiedName':
+            case 'unspecified':
+                return 'urn:oasis:names:tc:SAML:1.1:nameid-format:' . $format;
+            default:
+                return 'urn:oasis:names:tc:SAML:2.0:nameid-format:'. $format;
+        }
     }
 }

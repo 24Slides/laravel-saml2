@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string $idp_logout_url
  * @property string $idp_x509_cert
  * @property string $relay_state_url
+ * @property string $name_id_format
  * @property array $metadata
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
@@ -47,6 +48,7 @@ class Tenant extends Model
         'idp_logout_url',
         'idp_x509_cert',
         'relay_state_url',
+        'name_id_format',
         'metadata'
     ];
 
