@@ -78,6 +78,8 @@ class OneLoginBuilder
                 'x509cert' => $this->tenant->idp_x509_cert
             ];
 
+            $oneLoginConfig['sp']['NameIDFormat'] = $this->resolveNameIdFormatPrefix($this->tenant->name_id_format);
+
             return new OneLoginAuth($oneLoginConfig);
         });
 
@@ -112,8 +114,7 @@ class OneLoginBuilder
         return [
             'sp.entityId' => URL::route('saml.metadata', ['uuid' => $this->tenant->uuid]),
             'sp.assertionConsumerService.url' => URL::route('saml.acs', ['uuid' => $this->tenant->uuid]),
-            'sp.singleLogoutService.url' => URL::route('saml.sls', ['uuid' => $this->tenant->uuid]),
-            'sp.NameIDFormat' => $this->resolveNameIdFormatPrefix($this->tenant->name_id_format)
+            'sp.singleLogoutService.url' => URL::route('saml.sls', ['uuid' => $this->tenant->uuid])
         ];
     }
 
