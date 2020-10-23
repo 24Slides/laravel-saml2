@@ -63,6 +63,7 @@ trait RendersTenants
             'Login URL' => $tenant->idp_login_url,
             'Logout URL' => $tenant->idp_logout_url,
             'Relay State URL' => $tenant->relay_state_url,
+            'Name ID format' => $tenant->name_id_format,
             'x509 cert' => Str::limit($tenant->idp_x509_cert, 50),
             'Metadata' => $this->renderArray($tenant->metadata ?: []),
             'Created' => $tenant->created_at->toDateTimeString(),
