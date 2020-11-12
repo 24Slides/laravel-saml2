@@ -18,11 +18,11 @@
         "illuminate/database": "~5.5|^6.0|^7.0|^8.0",
         "illuminate/support": "~5.4|^6.0|^7.0|^8.0",
         "onelogin/php-saml": "^3.0",
-        "ramsey/uuid": "^3.8"
+        "ramsey/uuid": "^3.8|^4.0"
     },
     "require-dev": {
         "mockery/mockery": "^0.9.9",
-        "phpunit/phpunit": "^7.5",
+        "phpunit/phpunit": "^7.5|^9.0",
         "squizlabs/php_codesniffer": "^2.3"
     },
     "autoload": {
@@ -43,7 +43,7 @@
             ]
         },
         "branch-aliases": {
-            "dev-master": "2.0.3-dev"
+            "dev-master": "2.0.8-dev"
         }
     },
     "minimum-stability": "dev",
