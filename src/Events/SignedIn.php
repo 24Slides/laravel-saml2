@@ -37,4 +37,26 @@ class SignedIn
         $this->user = $user;
         $this->auth = $auth;
     }
+
+    /**
+     * Get the authentication handler for a SAML sign in attempt
+     *
+     * @return Auth The authentication handler for the SignedIn event
+     */
+    public function getAuth(): Auth
+    {
+        return $this->auth;
+    }
+
+    /**
+     * Get the user represented in the SAML sign in attempt
+     *
+     * @return Saml2User The user for the SignedIn event
+     */
+    public function getSaml2User(): Saml2User
+    {
+        $this->user = $user;
+        $this->auth = $auth;
+        return $this->user;
+    }
 }
