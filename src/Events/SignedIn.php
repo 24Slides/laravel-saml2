@@ -55,8 +55,6 @@ class SignedIn
      */
     public function getSaml2User(): Saml2User
     {
-        $this->user = $user;
-        $this->auth = $auth;
         return $this->user;
     }
 }
