@@ -48,6 +48,10 @@ class Saml2Controller extends Controller
         $errors = $auth->acs();
 
         if (!empty($errors)) {
+            if (config('saml2.debug')) {
+                logger()->debug('[Saml2] Error with IdP SAML Response. [Debug] Assertion: ' . $auth->getBase()->getLastResponseXML());
+            }
+
             logger()->error('saml2.error_detail', ['error' => $auth->getLastErrorReason()]);
             session()->flash('saml2.error_detail', [$auth->getLastErrorReason()]);
 
