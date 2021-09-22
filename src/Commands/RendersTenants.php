@@ -2,6 +2,7 @@
 
 namespace Slides\Saml2\Commands;
 
+use Slides\Saml2\Helpers\TenantHelper;
 use Illuminate\Support\Str;
 
 /**
@@ -34,12 +35,12 @@ trait RendersTenants
                 $columns[] = [$column, $value ?: '(empty)'];
             }
 
-            if($tenants->last()->id !== $tenant->id) {
+            if ($tenants->last()->id !== $tenant->id) {
                 $columns[] = new \Symfony\Component\Console\Helper\TableSeparator();
             }
         }
 
-        if($title) {
+        if ($title) {
             $this->getOutput()->title($title);
         }
 
@@ -59,13 +60,15 @@ trait RendersTenants
             'ID' => $tenant->id,
             'UUID' => $tenant->uuid,
             'Key' => $tenant->key,
-            'Entity ID' => $tenant->idp_entity_id,
-            'Login URL' => $tenant->idp_login_url,
-            'Logout URL' => $tenant->idp_logout_url,
+            'IdP Entity ID' => $tenant->idp_entity_id,
+            'IdP Login URL' => $tenant->idp_login_url,
+            'IdP Logout URL' => $tenant->idp_logout_url,
             'Relay State URL' => $tenant->relay_state_url,
             'Name ID format' => $tenant->name_id_format,
             'x509 cert' => Str::limit($tenant->idp_x509_cert, 50),
             'Metadata' => $this->renderArray($tenant->metadata ?: []),
+            'Manual SP Entity ID override' => $tenant->sp_entity_id_override,
+            'SP Entity ID' => TenantHelper::with($this->tenant)->getSpEntityId(),
             'Created' => $tenant->created_at->toDateTimeString(),
             'Updated' => $tenant->updated_at->toDateTimeString(),
             'Deleted' => $tenant->deleted_at ? $tenant->deleted_at->toDateTimeString() : null
@@ -83,8 +86,11 @@ trait RendersTenants
     {
         $this->output->section('Credentials for the tenant');
 
+        $spEntityIdOverrideStatus = (!empty($tenant->sp_entity_id_override) ? ' (Manual override)' : '');
+
         $this->getOutput()->text([
-            'Identifier (Entity ID): <comment>' . route('saml.metadata', ['uuid' => $tenant->uuid]) . '</comment>',
+            'Identifier (SP Entity ID): <comment>' . TenantHelper::with($this->tenant)->getSpEntityId() . '</comment>' . $spEntityIdOverrideStatus,
+            'Metadata URL: <comment>' . route('saml.metadata', ['uuid' => $tenant->uuid]) . '</comment>',
             'Reply URL (Assertion Consumer Service URL): <comment>' . route('saml.acs', ['uuid' => $tenant->uuid]) . '</comment>',
             'Sign on URL: <comment>' . route('saml.login', ['uuid' => $tenant->uuid]) . '</comment>',
             'Logout URL: <comment>' . route('saml.logout', ['uuid' => $tenant->uuid]) . '</comment>',

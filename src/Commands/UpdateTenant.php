@@ -27,7 +27,8 @@ class UpdateTenant extends \Illuminate\Console\Command
                             { --relayStateUrl= : Redirection URL after successful login }
                             { --nameIdFormat= : Name ID Format ("persistent" by default) }
                             { --x509cert= : x509 certificate (base64) }
-                            { --metadata= : A custom metadata }';
+                            { --metadata= : A custom metadata }
+                            { --spEntityIdOverride= : Optional manual SP Entity ID override }';
 
     /**
      * The console command description.
@@ -60,7 +61,7 @@ class UpdateTenant extends \Illuminate\Console\Command
      */
     public function handle()
     {
-        if(!$tenant = $this->tenants->findById($this->argument('id'))) {
+        if (!$tenant = $this->tenants->findById($this->argument('id'))) {
             $this->error('Cannot find a tenant #' . $this->argument('id'));
             return;
         }
@@ -73,15 +74,23 @@ class UpdateTenant extends \Illuminate\Console\Command
             'idp_x509_cert' => $this->option('x509cert'),
             'relay_state_url' => $this->option('relayStateUrl'),
             'name_id_format' => $this->resolveNameIdFormat(),
-            'metadata' => ConsoleHelper::stringToArray($this->option('metadata'))
+            'metadata' => ConsoleHelper::stringToArray($this->option('metadata')),
         ]));
 
-        if(!$tenant->save()) {
+        // Update separately than the above array_filter, so caller can actually set to empty value.
+        // Note: ->option() value is NULL if _not passed at all_, and empty string if passed
+        // with no value, e.g. --spEntityIdOverride=
+        $spEntityIdOptionWasPassed = !is_null($this->option('spEntityIdOverride'));
+        if ($spEntityIdOptionWasPassed) {
+            $tenant->sp_entity_id_override = $this->option('spEntityIdOverride');
+        }
+
+        if (!$tenant->save()) {
             $this->error('Tenant cannot be saved.');
             return;
         }
 
-        $this->info("The tenant #{$tenant->id} ({$tenant->uuid}) was successfully updated.");
+        $this->info("The tenant #{$tenant->id} (key: {$tenant->key} / {$tenant->uuid}) was successfully updated.");
 
         $this->renderTenantCredentials($tenant);
 

@@ -6,6 +6,7 @@ use OneLogin\Saml2\Auth as OneLoginAuth;
 use OneLogin\Saml2\Utils as OneLoginUtils;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Contracts\Container\Container;
+use Slides\Saml2\Helpers\TenantHelper;
 use Slides\Saml2\Models\Tenant;
 use Illuminate\Support\Arr;
 
@@ -98,7 +99,7 @@ class OneLoginBuilder
     protected function setConfigDefaultValues(array &$config)
     {
         foreach ($this->configDefaultValues() as $key => $default) {
-            if(!Arr::get($config, $key)) {
+            if (!Arr::get($config, $key)) {
                 Arr::set($config, $key, $default);
             }
         }
@@ -112,7 +113,7 @@ class OneLoginBuilder
     protected function configDefaultValues()
     {
         return [
-            'sp.entityId' => URL::route('saml.metadata', ['uuid' => $this->tenant->uuid]),
+            'sp.entityId' => TenantHelper::with($this->tenant)->getSpEntityId(),
             'sp.assertionConsumerService.url' => URL::route('saml.acs', ['uuid' => $this->tenant->uuid]),
             'sp.singleLogoutService.url' => URL::route('saml.sls', ['uuid' => $this->tenant->uuid])
         ];
@@ -134,7 +135,7 @@ class OneLoginBuilder
             case 'unspecified':
                 return 'urn:oasis:names:tc:SAML:1.1:nameid-format:' . $format;
             default:
-                return 'urn:oasis:names:tc:SAML:2.0:nameid-format:'. $format;
+                return 'urn:oasis:names:tc:SAML:2.0:nameid-format:' . $format;
         }
     }
 }

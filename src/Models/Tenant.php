@@ -49,7 +49,8 @@ class Tenant extends Model
         'idp_x509_cert',
         'relay_state_url',
         'name_id_format',
-        'metadata'
+        'metadata',
+        'sp_entity_id_override',
     ];
 
     /**
