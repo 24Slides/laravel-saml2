@@ -6,7 +6,7 @@ use OneLogin\Saml2\Auth as OneLoginAuth;
 use OneLogin\Saml2\Utils as OneLoginUtils;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Contracts\Container\Container;
-use Slides\Saml2\Helpers\TenantHelper;
+use Slides\Saml2\Helpers\TenantWrapper;
 use Slides\Saml2\Models\Tenant;
 use Illuminate\Support\Arr;
 
@@ -81,6 +81,10 @@ class OneLoginBuilder
 
             $oneLoginConfig['sp']['NameIDFormat'] = $this->resolveNameIdFormatPrefix($this->tenant->name_id_format);
 
+            if (config('saml2.debug')) {
+                logger()->debug('[Saml2] Initializing with config: ', $oneLoginConfig);
+            }
+
             return new OneLoginAuth($oneLoginConfig);
         });
 
@@ -113,7 +117,7 @@ class OneLoginBuilder
     protected function configDefaultValues()
     {
         return [
-            'sp.entityId' => TenantHelper::with($this->tenant)->getSpEntityId(),
+            'sp.entityId' => TenantWrapper::with($this->tenant)->getSpEntityId(),
             'sp.assertionConsumerService.url' => URL::route('saml.acs', ['uuid' => $this->tenant->uuid]),
             'sp.singleLogoutService.url' => URL::route('saml.sls', ['uuid' => $this->tenant->uuid])
         ];

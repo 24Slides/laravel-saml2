@@ -84,6 +84,7 @@ Each Tenant has the following attributes:
 - **Logout URL** — Identity Provider Logout URL
 - **x509 certificate** — The certificate provided by Identity Provider in **base64** format
 - **Metadata** — Custom parameters for your application needs
+- **SP Entity ID override** — Optional; if provided, this overrides the auto-generated SP Entity ID
 
 #### Default routes
 
@@ -274,6 +275,49 @@ Run the following in the package folder:
 
 ```
 vendor/bin/phpunit
+```
+
+## Optional: Manually override the SP Entity ID
+The library helpfully provides an automatic SP Entity ID, using the metadata endpoint URL. If you find yourself in a situation where you need to use a _different_ SP Entity, you can do so using the optional `--spEntityIdOverride` option.
+
+Example use case:
+> An IdP is already configured with your SP entity ID, then you migrate your domain name.  
+You can use this option to "freeze" your SP Entity ID even after your `APP_URL` changes, so that the tenant will continue to validate the IdP's Assertion.
+
+#### How to Override the SP Entity ID for a tenant
+Pass the string you want `--spEntityIdOverride=yourValue`.  
+_Note in the rendered tenant-credentials, a note `(Manual override)` is added after the SP Entity ID value:_
+```
+$ php artisan saml2:update-tenant 3 --spEntityIdOverride=http://example.tld/different/sp-entity-id
+The tenant #3 (key: sequi / a816b9d8-40be-36b2-9ff2-884d65311314) was successfully updated.
+
+Credentials for the tenant
+--------------------------
+
+ Identifier (SP Entity ID): http://example.tld/different/sp-entity-id (Manual override)
+ Metadata URL: http://my.app_url.tld/sso/a816b9d8-40be-36b2-9ff2-884d65311314/metadata
+ Reply URL (Assertion Consumer Service URL): http://my.app_url.tld/sso/a816b9d8-40be-36b2-9ff2-884d65311314/acs
+ Sign on URL: http://my.app_url.tld/sso/a816b9d8-40be-36b2-9ff2-884d65311314/login
+ Logout URL: http://my.app_url.tld/sso/a816b9d8-40be-36b2-9ff2-884d65311314/logout
+ Relay State: / (optional)
+```
+
+#### How to Remove the override value, and go back to default SP Entity ID
+Pass an empty value to remove the override, e.g. `--spEntityIdOverride=`.  
+_Note in the rendered tenant-credentials, `(Manual override)` is gone:_
+```
+$ php artisan saml2:update-tenant 3 --spEntityIdOverride=
+The tenant #3 (key: sequi / a816b9d8-40be-36b2-9ff2-884d65311314) was successfully updated.
+
+Credentials for the tenant
+--------------------------
+
+ Identifier (SP Entity ID): http://my.app_url.tld/sso/a816b9d8-40be-36b2-9ff2-884d65311314/metadata
+ Metadata URL: http://my.app_url.tld/sso/a816b9d8-40be-36b2-9ff2-884d65311314/metadata
+ Reply URL (Assertion Consumer Service URL): http://my.app_url.tld/sso/a816b9d8-40be-36b2-9ff2-884d65311314/acs
+ Sign on URL: http://my.app_url.tld/sso/a816b9d8-40be-36b2-9ff2-884d65311314/login
+ Logout URL: http://my.app_url.tld/sso/a816b9d8-40be-36b2-9ff2-884d65311314/logout
+ Relay State: / (optional)
 ```
 
 ## Security

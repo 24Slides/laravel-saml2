@@ -28,7 +28,7 @@ class UpdateTenant extends \Illuminate\Console\Command
                             { --nameIdFormat= : Name ID Format ("persistent" by default) }
                             { --x509cert= : x509 certificate (base64) }
                             { --metadata= : A custom metadata }
-                            { --spEntityIdOverride= : Optional manual SP Entity ID override }';
+                            { --spEntityIdOverride= : Optional manual SP Entity ID override (pass empty string to unset) }';
 
     /**
      * The console command description.
@@ -77,11 +77,10 @@ class UpdateTenant extends \Illuminate\Console\Command
             'metadata' => ConsoleHelper::stringToArray($this->option('metadata')),
         ]));
 
-        // Update separately than the above array_filter, so caller can actually set to empty value.
-        // Note: ->option() value is NULL if _not passed at all_, and empty string if passed
-        // with no value, e.g. --spEntityIdOverride=
-        $spEntityIdOptionWasPassed = !is_null($this->option('spEntityIdOverride'));
-        if ($spEntityIdOptionWasPassed) {
+        // sp_entity_id_override is special case: Needs a way to "unset", i.e. set it to an empty value.
+        // The above array_filter will ignore case where user DID pass the spEntityIdOverride, giving it not value
+        // We can use the fact that ->option() value is NULL only if _not passed at all_.
+        if ($this->option('spEntityIdOverride') !== null) {
             $tenant->sp_entity_id_override = $this->option('spEntityIdOverride');
         }
 

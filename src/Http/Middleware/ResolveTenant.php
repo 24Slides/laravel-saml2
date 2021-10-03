@@ -2,6 +2,7 @@
 
 namespace Slides\Saml2\Http\Middleware;
 
+use Slides\Saml2\Helpers\TenantWrapper;
 use Slides\Saml2\Repositories\TenantRepository;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -48,7 +49,7 @@ class ResolveTenant
      */
     public function handle($request, \Closure $next)
     {
-        if(!$tenant = $this->resolveTenant($request)) {
+        if (!$tenant = $this->resolveTenant($request)) {
             throw new NotFoundHttpException();
         }
 
@@ -56,7 +57,8 @@ class ResolveTenant
             Log::debug('[Saml2] Tenant resolved', [
                 'uuid' => $tenant->uuid,
                 'id' => $tenant->id,
-                'key' => $tenant->key
+                'key' => $tenant->key,
+                'spEntityId' => TenantWrapper::with($tenant)->getSpEntityId(),
             ]);
         }
 
@@ -78,7 +80,7 @@ class ResolveTenant
      */
     protected function resolveTenant($request)
     {
-        if(!$uuid = $request->route('uuid')) {
+        if (!$uuid = $request->route('uuid')) {
             if (config('saml2.debug')) {
                 Log::debug('[Saml2] Tenant UUID is not present in the URL so cannot be resolved', [
                     'url' => $request->fullUrl()
@@ -88,7 +90,7 @@ class ResolveTenant
             return null;
         }
 
-        if(!$tenant = $this->tenants->findByUUID($uuid)) {
+        if (!$tenant = $this->tenants->findByUUID($uuid)) {
             if (config('saml2.debug')) {
                 Log::debug('[Saml2] Tenant doesn\'t exist', [
                     'uuid' => $uuid
@@ -98,12 +100,13 @@ class ResolveTenant
             return null;
         }
 
-        if($tenant->trashed()) {
+        if ($tenant->trashed()) {
             if (config('saml2.debug')) {
-                Log::debug('[Saml2] Tenant #' . $tenant->id. ' resolved but marked as deleted', [
+                Log::debug('[Saml2] Tenant #' . $tenant->id . ' resolved but marked as deleted', [
                     'id' => $tenant->id,
                     'uuid' => $uuid,
-                    'deleted_at' => $tenant->deleted_at->toDateTimeString()
+                    'deleted_at' => $tenant->deleted_at->toDateTimeString(),
+                    'spEntityId' => TenantWrapper::with($tenant)->getSpEntityId(),
                 ]);
             }
 
