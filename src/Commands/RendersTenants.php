@@ -86,7 +86,7 @@ trait RendersTenants
     {
         $this->output->section('Credentials for the tenant');
 
-        $spEntityIdOverrideStatus = (!empty($tenant->sp_entity_id_override) ? ' (Manual override)' : '');
+        $spEntityIdOverrideStatus = empty($tenant->sp_entity_id_override) ? '' : ' (Manual override)';
 
         $this->getOutput()->text([
             'Identifier (SP Entity ID): <comment>' . TenantWrapper::with($tenant)->getSpEntityId() . '</comment>' . $spEntityIdOverrideStatus,
