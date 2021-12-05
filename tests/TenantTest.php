@@ -6,13 +6,18 @@ namespace Slides\Saml2\Tests;
 
 use Slides\Saml2\Models\Tenant;
 use Slides\Saml2\Helpers\TenantWrapper;
-use PHPUnit\Framework\TestCase;
+use Illuminate\Foundation\Testing\TestCase;
 use Mockery;
+
+use Tests\CreatesApplication; // Test app context must provide this
 
 class TenantTest extends TestCase
 {
+    use CreatesApplication; // Standard Laravel approach to functional tests that can resolve route URLs
+
     private string $mockUuid = "mock-uuid";
-    private string $stubbedUrlRouteForMetadata = "stub-route-for saml.metadata with uuid mock-uuid";
+    private string $stubbedMetadataFullUrl = "stub-app-url/stub-path-for saml.metadata with uuid mock-uuid";
+    private string $stubbedMetadataPath = "stub-path-for saml.metadata with uuid mock-uuid";
 
     public function setUp(): void
     {
@@ -22,24 +27,29 @@ class TenantTest extends TestCase
         // and used the laravel TestCase override that boots the laravel app! But we can still do it)
         // Do this in setUp, because tearDown's Mockery::close() will destroy it (after every test)
         $stubUrlRoute = function (string $name, $parameters = [], bool $absolute = true) {
-            return "stub-route-for $name with uuid {$parameters['uuid']}";
+            if ($absolute) {
+                return "stub-app-url/stub-path-for $name with uuid {$parameters['uuid']}";
+            }
+            return "/stub-path-for $name with uuid {$parameters['uuid']}";
         };
 
         $urlFacadeMock = \Mockery::mock('alias:Illuminate\Support\Facades\URL');
         $urlFacadeMock->shouldReceive('route')->andReturnUsing($stubUrlRoute);
     }
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         Mockery::close();
         parent::tearDown();
     }
-    public function test_getSpEntityId_overrideNull_ShouldUseDefault()
-    {
-        $spEntityIdOverride = null;
-        $expectedSpEntityId = $this->stubbedUrlRouteForMetadata;
 
-        $tenant = $this->mockTenant($spEntityIdOverride);
+    public function test_getSpEntityId_appUrlOverrideNull_ShouldUseDefault()
+    {
+        $idAppUrlOverride = null;
+        $expectedSpEntityId = $this->stubbedMetadataFullUrl;
+
+        $tenant = $this->mockTenant($idAppUrlOverride);
+
         $this->assertEquals(
             $expectedSpEntityId,
             TenantWrapper::with($tenant)->getSpEntityId(),
@@ -47,12 +57,12 @@ class TenantTest extends TestCase
         );
     }
 
-    public function test_getSpEntityId_overrideEmptyString_ShouldUseDefault()
+    public function test_getSpEntityId_appUrlOverrideEmptyString_ShouldUseDefault()
     {
-        $spEntityIdOverride = '';
-        $expectedSpEntityId = $this->stubbedUrlRouteForMetadata;
+        $idAppUrlOverride = '';
+        $expectedSpEntityId = $this->stubbedMetadataFullUrl;
 
-        $tenant = $this->mockTenant($spEntityIdOverride);
+        $tenant = $this->mockTenant($idAppUrlOverride);
         $this->assertEquals(
             $expectedSpEntityId,
             TenantWrapper::with($tenant)->getSpEntityId(),
@@ -60,16 +70,16 @@ class TenantTest extends TestCase
         );
     }
 
-    public function test_getSpEntityId_overrideSet_ShouldReturnOverride()
+    public function test_getSpEntityId_appUrlOverrideSet_ShouldReturnOverride()
     {
-        $spEntityIdOverride = 'manually overidden sp Entity ID';
-        $expectedSpEntityId = $spEntityIdOverride;
+        $idAppUrlOverride = 'https://manually-overidden-domain';
+        $expectedSpEntityId = 'https://manually-overidden-domain/' . $this->stubbedMetadataPath;
 
-        $tenant = $this->mockTenant($spEntityIdOverride);
+        $tenant = $this->mockTenant($idAppUrlOverride);
         $this->assertEquals(
             $expectedSpEntityId,
             TenantWrapper::with($tenant)->getSpEntityId(),
-            'Should return the override value, because sp_entity_id_override is set'
+            'Should return the override value, because id_app_url_override is set'
         );
     }
 
@@ -78,11 +88,11 @@ class TenantTest extends TestCase
      *
      * @return \Slides\Saml2\Models\Tenant
      */
-    protected function mockTenant(?string $spEntityIdOverride = '')
+    protected function mockTenant(?string $idAppUrlOverride = '')
     {
         $tenant = Mockery::mock(Tenant::class);
         $tenant->shouldReceive('getAttribute')->with('uuid')->andReturn($this->mockUuid);
-        $tenant->shouldReceive('getAttribute')->with('sp_entity_id_override')->andReturn($spEntityIdOverride);
+        $tenant->shouldReceive('getAttribute')->with('id_app_url_override')->andReturn($idAppUrlOverride);
         return $tenant;
     }
 }

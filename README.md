@@ -277,36 +277,43 @@ Run the following in the package folder:
 vendor/bin/phpunit
 ```
 
-## Optional: Manually override the SP Entity ID
-The library helpfully provides an automatic SP Entity ID, using the metadata endpoint URL. If you find yourself in a situation where you need to use a _different_ SP Entity, you can do so using the optional `--spEntityIdOverride` option.
+## Optional: Manually override the domain (APP_URL) used for ACS url and SP Entity ID
+Two of the tenant URLs are used for validation of login requests, both  SP-initiated (IdP validates that it matches), and IdP-initiated (our OneLogin library validates).
+- ACS url (`'saml.acs'`)
+- SP Entity ID (for which this library uses `'saml.metadata'`)
 
-Example use case:
-> An IdP is already configured with your SP entity ID, then you migrate your domain name.  
-You can use this option to "freeze" your SP Entity ID even after your `APP_URL` changes, so that the tenant will continue to validate the IdP's Assertion.
+That's fine most of the time. However, there is an uncommon but important edge case: when your web application moves domains.
+During that transition, you need the old ACS url and SP Entity Id to be "frozen" and use the old domain — since that is the value the IdP already has configured.
 
-#### How to Override the SP Entity ID for a tenant
-Pass the string you want `--spEntityIdOverride=yourValue`.  
-_Note in the rendered tenant-credentials, a note `(Manual override)` is added after the SP Entity ID value:_
+As with all routes, the domain portion is based on `APP_URL` when generating tenant-credentials at the command line,
+and the request host header when handling a web request. So, in order to "freeze" the old domain for a tenant, we need to override both of those.
+
+That's what the optional `--idAppUrlOverride` is for:
+
+#### How to Override the domain used for ACS url and SP Entity ID for a tenant
+Pass the string you want to `--idAppUrlOverride=yourValue`.  This is your override of `APP_URL` (command line) and host header (web request).
+
+_Note in the rendered tenant-credentials, a note `(Manual override)` is added after the SP Entity ID and ACS values:_
 ```
-$ php artisan saml2:update-tenant 3 --spEntityIdOverride=http://example.tld/different/sp-entity-id
+$ php artisan saml2:update-tenant 3 --idAppUrlOverride=https://example.tld
 The tenant #3 (key: sequi / a816b9d8-40be-36b2-9ff2-884d65311314) was successfully updated.
 
 Credentials for the tenant
 --------------------------
 
- Identifier (SP Entity ID): http://example.tld/different/sp-entity-id (Manual override)
+ Identifier (SP Entity ID): https://example.tld/a816b9d8-40be-36b2-9ff2-884d65311314/metadata (Manual override)
  Metadata URL: http://my.app_url.tld/sso/a816b9d8-40be-36b2-9ff2-884d65311314/metadata
- Reply URL (Assertion Consumer Service URL): http://my.app_url.tld/sso/a816b9d8-40be-36b2-9ff2-884d65311314/acs
+ Reply URL (Assertion Consumer Service URL): https://example.tld/sso/a816b9d8-40be-36b2-9ff2-884d65311314/acs (Manual override)
  Sign on URL: http://my.app_url.tld/sso/a816b9d8-40be-36b2-9ff2-884d65311314/login
  Logout URL: http://my.app_url.tld/sso/a816b9d8-40be-36b2-9ff2-884d65311314/logout
  Relay State: / (optional)
 ```
 
 #### How to Remove the override value, and go back to default SP Entity ID
-Pass an empty value to remove the override, e.g. `--spEntityIdOverride=`.  
+Pass an empty value to remove the override, e.g. `--idAppUrlOverride=`.  
 _Note in the rendered tenant-credentials, `(Manual override)` is gone:_
 ```
-$ php artisan saml2:update-tenant 3 --spEntityIdOverride=
+$ php artisan saml2:update-tenant 3 --idAppUrlOverride=
 The tenant #3 (key: sequi / a816b9d8-40be-36b2-9ff2-884d65311314) was successfully updated.
 
 Credentials for the tenant

@@ -50,7 +50,7 @@ class Tenant extends Model
         'relay_state_url',
         'name_id_format',
         'metadata',
-        'sp_entity_id_override',
+        'id_app_url_override',
     ];
 
     /**

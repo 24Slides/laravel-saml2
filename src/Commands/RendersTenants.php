@@ -67,7 +67,7 @@ trait RendersTenants
             'Name ID format' => $tenant->name_id_format,
             'x509 cert' => Str::limit($tenant->idp_x509_cert, 50),
             'Metadata' => $this->renderArray($tenant->metadata ?: []),
-            'Manual SP Entity ID override' => $tenant->sp_entity_id_override,
+            'Manual domain override for ID URLs' => $tenant->id_app_url_override,
             'SP Entity ID' => TenantWrapper::with($tenant)->getSpEntityId(),
             'Created' => $tenant->created_at->toDateTimeString(),
             'Updated' => $tenant->updated_at->toDateTimeString(),
@@ -86,10 +86,10 @@ trait RendersTenants
     {
         $this->output->section('Credentials for the tenant');
 
-        $spEntityIdOverrideStatus = empty($tenant->sp_entity_id_override) ? '' : ' (Manual override)';
+        $domainOverrideNote = empty($tenant->id_app_url_override) ? '' : ' (Manual override)';
 
         $this->getOutput()->text([
-            'Identifier (SP Entity ID): <comment>' . TenantWrapper::with($tenant)->getSpEntityId() . '</comment>' . $spEntityIdOverrideStatus,
+            'Identifier (SP Entity ID): <comment>' . TenantWrapper::with($tenant)->getSpEntityId() . '</comment>' . $domainOverrideNote,
             'Metadata URL: <comment>' . route('saml.metadata', ['uuid' => $tenant->uuid]) . '</comment>',
             'Reply URL (Assertion Consumer Service URL): <comment>' . route('saml.acs', ['uuid' => $tenant->uuid]) . '</comment>',
             'Sign on URL: <comment>' . route('saml.login', ['uuid' => $tenant->uuid]) . '</comment>',

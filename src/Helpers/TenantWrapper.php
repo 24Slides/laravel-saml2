@@ -40,8 +40,9 @@ class TenantWrapper
     /**
      * Use this to determine the SP Entity ID for a tenant.
      *
-     * 1. Returns default SP entity ID (metadata URL) *UNLESS* sp_entity_id_override is filled in (non-empty string),
-     * 2. ... in which case it will return that sp_entity_id_override value
+     * 1. Returns default SP entity ID (metadata URL) *UNLESS* id_app_url_override is filled in (non-empty string),
+     * 2. ... in which case it will return the SP entity ID path appended to that value instead of
+     *    what URL::route uses (APP_URL at command line, request HOST during a request)
      *
      * Q: Why not just make this Tenant::getSpEntityIdAttribute?
      * A: Because Eloquent models hate unit testing
@@ -50,6 +51,25 @@ class TenantWrapper
      */
     public function getSpEntityId(): string
     {
-        return $this->tenant->sp_entity_id_override ?: URL::route('saml.metadata', ['uuid' => $this->tenant->uuid]);
+        return $this->getUrlWithDomainOverrideIfConfigured('saml.metadata');
+    }
+
+    /**
+     * By default (id_app_url_override not configured), returns default route URL
+     * (which, for URL::route, is a /-relative path, not an absolute including domain)
+     * 
+     * When id_app_url_override is configured, the route *path* appended to that id_app_url_override value
+     *
+     * @param string $routeName Valid route — intended to be one of the saml.* routes
+     * @return string path or full URL of that route
+     */
+    private function getUrlWithDomainOverrideIfConfigured(string $routeName): string
+    {
+        if ($this->tenant->id_app_url_override) {
+            $absolute = false;
+            return $this->tenant->id_app_url_override . URL::route($routeName, ['uuid' => $this->tenant->uuid], $absolute);
+        } else {
+            return URL::route($routeName, ['uuid' => $this->tenant->uuid]);
+        }
     }
 }

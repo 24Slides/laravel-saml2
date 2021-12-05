@@ -28,7 +28,7 @@ class CreateTenant extends \Illuminate\Console\Command
                             { --nameIdFormat= : Name ID Format ("persistent" by default) }
                             { --x509cert= : x509 certificate (base64) }
                             { --metadata= : A custom metadata }
-                            { --spEntityIdOverride= : Optional manual SP Entity ID override }';
+                            { --idAppUrlOverride= : Optional manual override for APP_URL used in ACS URL and SP Entity ID }';
 
     /**
      * The console command description.
@@ -83,7 +83,7 @@ class CreateTenant extends \Illuminate\Console\Command
 
         $key = $this->option('key');
         $metadata = ConsoleHelper::stringToArray($this->option('metadata'));
-        $spEntityIdOverride = $this->option('spEntityIdOverride');
+        $idAppUrlOverride = $this->option('idAppUrlOverride');
 
         if ($key && ($tenant = $this->tenants->findByKey($key))) {
             $this->renderTenants($tenant, 'Already found tenant(s) using this key');
@@ -105,7 +105,7 @@ class CreateTenant extends \Illuminate\Console\Command
             'relay_state_url' => $this->option('relayStateUrl'),
             'name_id_format' => $this->resolveNameIdFormat(),
             'metadata' => $metadata,
-            'sp_entity_id_override' => $spEntityIdOverride,
+            'id_app_url_override' => $idAppUrlOverride,
         ]);
 
         if (!$tenant->save()) {

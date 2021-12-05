@@ -28,7 +28,7 @@ class UpdateTenant extends \Illuminate\Console\Command
                             { --nameIdFormat= : Name ID Format ("persistent" by default) }
                             { --x509cert= : x509 certificate (base64) }
                             { --metadata= : A custom metadata }
-                            { --spEntityIdOverride= : Optional manual SP Entity ID override (pass empty string to unset) }';
+                            { --idAppUrlOverride= : Optional manual override for APP_URL used in ACS URL and SP Entity ID }';
 
     /**
      * The console command description.
@@ -77,11 +77,11 @@ class UpdateTenant extends \Illuminate\Console\Command
             'metadata' => ConsoleHelper::stringToArray($this->option('metadata')),
         ]));
 
-        // sp_entity_id_override is special case: Needs a way to "unset", i.e. set it to an empty value.
-        // The above array_filter will ignore case where user DID pass the spEntityIdOverride, giving it not value
+        // id_app_url_override is special case: Needs a way to "unset", i.e. set it to an empty value.
+        // The above array_filter will ignore case where user DID pass the idAppUrlOverride, giving it not value
         // We can use the fact that ->option() value is NULL only if _not passed at all_.
-        if ($this->option('spEntityIdOverride') !== null) {
-            $tenant->sp_entity_id_override = $this->option('spEntityIdOverride');
+        if ($this->option('idAppUrlOverride') !== null) {
+            $tenant->id_app_url_override = $this->option('idAppUrlOverride');
         }
 
         if (!$tenant->save()) {
