@@ -91,7 +91,8 @@ trait RendersTenants
         $this->getOutput()->text([
             'Identifier (SP Entity ID): <comment>' . TenantWrapper::with($tenant)->getSpEntityId() . '</comment>' . $domainOverrideNote,
             'Metadata URL: <comment>' . route('saml.metadata', ['uuid' => $tenant->uuid]) . '</comment>',
-            'Reply URL (Assertion Consumer Service URL): <comment>' . route('saml.acs', ['uuid' => $tenant->uuid]) . '</comment>',
+            'Reply URL (Assertion Consumer Service URL): <comment>' . TenantWrapper::with($tenant)->getAcsUrl() . '</comment>' . $domainOverrideNote,
+            'Single Logout Service URL: <comment>' . TenantWrapper::with($tenant)->getSlsUrl() . '</comment>' . $domainOverrideNote,
             'Sign on URL: <comment>' . route('saml.login', ['uuid' => $tenant->uuid]) . '</comment>',
             'Logout URL: <comment>' . route('saml.logout', ['uuid' => $tenant->uuid]) . '</comment>',
             'Relay State: <comment>' . ($tenant->relay_state_url ?: config('saml2.loginRoute')) . ' (optional)</comment>'

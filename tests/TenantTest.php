@@ -13,13 +13,12 @@ use Tests\CreatesApplication; // Test app context must provide this
 
 class TenantTest extends TestCase
 {
-    use CreatesApplication; // Standard Laravel approach to functional tests that can resolve route URLs
+    // CreatesApplication is the standard Laravel approach to functional tests that can resolve route URLs
+    use CreatesApplication;
 
-    private string $mockUuid = "mock-uuid";
-    private string $stubbedMetadataFullUrl = "stub-app-url/stub-path-for saml.metadata with uuid mock-uuid";
-    private string $stubbedMetadataPath = "stub-path-for saml.metadata with uuid mock-uuid";
+    private string $mockUuid = 'mock-uuid';
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -46,7 +45,7 @@ class TenantTest extends TestCase
     public function test_getSpEntityId_appUrlOverrideNull_ShouldUseDefault()
     {
         $idAppUrlOverride = null;
-        $expectedSpEntityId = $this->stubbedMetadataFullUrl;
+        $expectedSpEntityId = $this->getStubbedRoute_FullUrl('saml.metadata');
 
         $tenant = $this->mockTenant($idAppUrlOverride);
 
@@ -60,7 +59,7 @@ class TenantTest extends TestCase
     public function test_getSpEntityId_appUrlOverrideEmptyString_ShouldUseDefault()
     {
         $idAppUrlOverride = '';
-        $expectedSpEntityId = $this->stubbedMetadataFullUrl;
+        $expectedSpEntityId = $this->getStubbedRoute_FullUrl('saml.metadata');
 
         $tenant = $this->mockTenant($idAppUrlOverride);
         $this->assertEquals(
@@ -73,13 +72,66 @@ class TenantTest extends TestCase
     public function test_getSpEntityId_appUrlOverrideSet_ShouldReturnOverride()
     {
         $idAppUrlOverride = 'https://manually-overidden-domain';
-        $expectedSpEntityId = 'https://manually-overidden-domain/' . $this->stubbedMetadataPath;
+        $expectedSpEntityId = 'https://manually-overidden-domain' . $this->getStubbedRoute_PathOnly('saml.metadata');
 
         $tenant = $this->mockTenant($idAppUrlOverride);
         $this->assertEquals(
             $expectedSpEntityId,
             TenantWrapper::with($tenant)->getSpEntityId(),
-            'Should return the override value, because id_app_url_override is set'
+            'Should return the SP Entity ID path appended to the overriden value, because id_app_url_override is set'
+        );
+    }
+
+    public function test_getAcsUrl_appUrlOverrideNull_ShouldUseDefault()
+    {
+        $idAppUrlOverride = null;
+        $expectedAcsUrl = $this->getStubbedRoute_FullUrl('saml.acs');
+
+        $tenant = $this->mockTenant($idAppUrlOverride);
+
+        $this->assertEquals(
+            $expectedAcsUrl,
+            TenantWrapper::with($tenant)->getAcsUrl(),
+            'Should return the default ACS URL when no override is set'
+        );
+    }
+
+    public function test_getAcsUrl_appUrlOverrideEmptyString_ShouldUseDefault()
+    {
+        $idAppUrlOverride = '';
+        $expectedAcsUrl = $this->getStubbedRoute_FullUrl('saml.acs');
+
+        $tenant = $this->mockTenant($idAppUrlOverride);
+        $this->assertEquals(
+            $expectedAcsUrl,
+            TenantWrapper::with($tenant)->getAcsUrl(),
+            'Should return the default ACS URL when no override is set'
+        );
+    }
+
+    public function test_getAcsUrl_appUrlOverrideSet_ShouldReturnOverride()
+    {
+        $idAppUrlOverride = 'https://manually-overidden-domain';
+        $expectedAcsUrl = 'https://manually-overidden-domain' . $this->getStubbedRoute_PathOnly('saml.acs');
+
+        $tenant = $this->mockTenant($idAppUrlOverride);
+        $this->assertEquals(
+            $expectedAcsUrl,
+            TenantWrapper::with($tenant)->getAcsUrl(),
+            'Should return the ACS path for the tenant appended to the overriden value, because id_app_url_override is set'
+        );
+    }
+
+    public function test_getSlsUrl_appUrlOverrideSet_ShouldReturnOverride()
+    {
+        $idAppUrlOverride = 'https://manually-overidden-domain';
+        $expectedSlsUrl = 'https://manually-overidden-domain' . $this->getStubbedRoute_PathOnly('saml.sls');
+
+        $tenant = $this->mockTenant($idAppUrlOverride);
+        $this->assertEquals(
+            $expectedSlsUrl,
+            TenantWrapper::with($tenant)->getSlsUrl(),
+            'Should return the ACS path for the tenant appended to the overriden value, because id_app_url_override is set'
         );
     }
 
@@ -94,5 +146,15 @@ class TenantTest extends TestCase
         $tenant->shouldReceive('getAttribute')->with('uuid')->andReturn($this->mockUuid);
         $tenant->shouldReceive('getAttribute')->with('id_app_url_override')->andReturn($idAppUrlOverride);
         return $tenant;
+    }
+
+    protected function getStubbedRoute_FullUrl(string $route)
+    {
+        return "stub-app-url/stub-path-for $route with uuid mock-uuid";
+    }
+
+    protected function getStubbedRoute_PathOnly(string $route)
+    {
+        return "/stub-path-for $route with uuid mock-uuid";
     }
 }

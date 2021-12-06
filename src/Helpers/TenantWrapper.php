@@ -6,7 +6,6 @@ namespace Slides\Saml2\Helpers;
 
 use Slides\Saml2\Models\Tenant;
 use Illuminate\Support\Facades\URL;
-use InvalidArgumentException;
 
 /**
  * TenantWrapper wraps a Tenant and adds business logic.
@@ -55,9 +54,40 @@ class TenantWrapper
     }
 
     /**
+     * Use this to determine the ACS URL for a tenant.
+     *
+     * 1. Returns default ACS URL *UNLESS* id_app_url_override is filled in (non-empty string),
+     * 2. ... in which case it will return the ACS path appended to that value instead of
+     *    what URL::route uses (APP_URL at command line, request HOST during a request)
+     *
+     * Q: Why not just make this Tenant::getAcsUrlAttribute?
+     * A: Because Eloquent models hate unit testing
+     *
+     * @return string ACS URL (full path)
+     */
+    public function getAcsUrl(): string
+    {
+        return $this->getUrlWithDomainOverrideIfConfigured('saml.acs');
+    }
+
+    /**
+     * Use this to determine the Single Logout Service URL for a tenant.
+     *
+     * 1. Returns default SLS URL *UNLESS* id_app_url_override is filled in (non-empty string),
+     * 2. ... in which case it will return the SLS path appended to that value instead of
+     *    what URL::route uses (APP_URL at command line, request HOST during a request)
+     *
+     * @return string SLS URL (full path)
+     */
+    public function getSlsUrl(): string
+    {
+        return $this->getUrlWithDomainOverrideIfConfigured('saml.sls');
+    }
+
+    /**
      * By default (id_app_url_override not configured), returns default route URL
      * (which, for URL::route, is a /-relative path, not an absolute including domain)
-     * 
+     *
      * When id_app_url_override is configured, the route *path* appended to that id_app_url_override value
      *
      * @param string $routeName Valid route — intended to be one of the saml.* routes
@@ -68,8 +98,8 @@ class TenantWrapper
         if ($this->tenant->id_app_url_override) {
             $absolute = false;
             return $this->tenant->id_app_url_override . URL::route($routeName, ['uuid' => $this->tenant->uuid], $absolute);
-        } else {
-            return URL::route($routeName, ['uuid' => $this->tenant->uuid]);
         }
+
+        return URL::route($routeName, ['uuid' => $this->tenant->uuid]);
     }
 }

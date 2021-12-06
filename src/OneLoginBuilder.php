@@ -118,8 +118,8 @@ class OneLoginBuilder
     {
         return [
             'sp.entityId' => TenantWrapper::with($this->tenant)->getSpEntityId(),
-            'sp.assertionConsumerService.url' => URL::route('saml.acs', ['uuid' => $this->tenant->uuid]),
-            'sp.singleLogoutService.url' => URL::route('saml.sls', ['uuid' => $this->tenant->uuid])
+            'sp.assertionConsumerService.url' => TenantWrapper::with($this->tenant)->getAcsUrl(),
+            'sp.singleLogoutService.url' => TenantWrapper::with($this->tenant)->getSlsUrl(),
         ];
     }
 
