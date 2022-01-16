@@ -84,7 +84,7 @@ trait RendersTenants
      */
     protected function renderTenantCredentials(\Slides\Saml2\Models\Tenant $tenant)
     {
-        $this->output->section('Credentials for the tenant');
+        $this->output->section('Credentials for tenant ' . $tenant->id);
 
         $domainOverrideNote = empty($tenant->id_app_url_override) ? '' : ' (Manual override)';
 

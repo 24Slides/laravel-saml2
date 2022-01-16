@@ -135,6 +135,19 @@ class TenantTest extends TestCase
         );
     }
 
+    public function test_getAcsUrl_appUrlOverrideHasTrailingSlash_shouldNotHaveDoubleSlashAfterOverwriddenBase()
+    {
+        $idAppUrlOverride = 'https://manually-overidden-domain/';
+        $expectedAcsUrl = 'https://manually-overidden-domain' . $this->getStubbedRoute_PathOnly('saml.acs');
+
+        $tenant = $this->mockTenant($idAppUrlOverride);
+        $this->assertEquals(
+            $expectedAcsUrl,
+            TenantWrapper::with($tenant)->getAcsUrl(),
+            'app url override should not care if it was set with trailing slash'
+        );
+    }
+
     /**
      * Create a fake tenant.
      *

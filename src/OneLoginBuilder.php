@@ -116,10 +116,11 @@ class OneLoginBuilder
      */
     protected function configDefaultValues()
     {
+        $tenantWrapper = TenantWrapper::with($this->tenant);
         return [
-            'sp.entityId' => TenantWrapper::with($this->tenant)->getSpEntityId(),
-            'sp.assertionConsumerService.url' => TenantWrapper::with($this->tenant)->getAcsUrl(),
-            'sp.singleLogoutService.url' => TenantWrapper::with($this->tenant)->getSlsUrl(),
+            'sp.entityId' => $tenantWrapper->getSpEntityId(),
+            'sp.assertionConsumerService.url' => $tenantWrapper->getAcsUrl(),
+            'sp.singleLogoutService.url' => $tenantWrapper->getSlsUrl(),
         ];
     }
 

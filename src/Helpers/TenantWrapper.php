@@ -95,11 +95,16 @@ class TenantWrapper
      */
     private function getUrlWithDomainOverrideIfConfigured(string $routeName): string
     {
+        $routeParams = [ 'uuid' => $this->tenant->uuid ];
+        
         if ($this->tenant->id_app_url_override) {
+            // Override the APP_URL with "manual" host:
+            $manualBaseUrl = rtrim($this->tenant->id_app_url_override, '/');
             $absolute = false;
-            return $this->tenant->id_app_url_override . URL::route($routeName, ['uuid' => $this->tenant->uuid], $absolute);
+            return $manualBaseUrl . URL::route($routeName, $routeParams, $absolute);
         }
 
-        return URL::route($routeName, ['uuid' => $this->tenant->uuid]);
+        // Normal case, default base URL (route() default $absolute to true, so 3rd param omitted)
+        return URL::route($routeName, $routeParams);
     }
 }
