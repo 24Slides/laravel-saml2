@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [2.0.10] - 2022-04-14
+
+### Added
+
+- Add support for Laravel 9 (pr #20, @SimplyCorey)
+
+## [2.0.9] - 2021-03-30
+
+### Added
+
+- Add SignedIn event accessors, to match the docs (#10, @darynmitchell)
+
 ## [2.0.8] - 2020-11-12
 
 ### Fixed
@@ -111,7 +123,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Replaced underscores with dots in routes
 - Minor refactoring, formatting
 
-[Unreleased]: https://github.com/24Slides/laravel-saml2/compare/2.0.8...HEAD
+[Unreleased]: https://github.com/24Slides/laravel-saml2/compare/2.0.10...HEAD
+[2.0.10]: https://github.com/24Slides/laravel-saml2/compare/2.0.9...2.0.10
+[2.0.9]: https://github.com/24Slides/laravel-saml2/compare/2.0.8...2.0.9
+[2.0.8]: https://github.com/24Slides/laravel-saml2/compare/2.0.7...2.0.8
 [2.0.7]: https://github.com/24Slides/laravel-saml2/compare/2.0.6...2.0.7
 [2.0.6]: https://github.com/24Slides/laravel-saml2/compare/2.0.5...2.0.6
 [2.0.5]: https://github.com/24Slides/laravel-saml2/compare/2.0.4...2.0.5
