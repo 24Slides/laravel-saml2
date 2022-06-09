@@ -51,8 +51,12 @@ class TenantRepository
      */
     public function findByAnyIdentifier($key, bool $withTrashed = true)
     {
+        if (!is_string($key) || ctype_digit($key)) {
+            return $this->query($withTrashed)
+            ->where('id', $key);
+        }
+
         return $this->query($withTrashed)
-            ->where('id', $key)
             ->orWhere('key', $key)
             ->orWhere('uuid', $key)
             ->get();
