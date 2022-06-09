@@ -53,7 +53,8 @@ class TenantRepository
     {
         if (!is_string($key) || ctype_digit($key)) {
             return $this->query($withTrashed)
-            ->where('id', $key);
+            ->where('id', $key)
+            ->get();
         }
 
         return $this->query($withTrashed)
