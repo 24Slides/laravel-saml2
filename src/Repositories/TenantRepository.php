@@ -53,13 +53,18 @@ class TenantRepository
     {
         if (!is_string($key) || ctype_digit($key)) {
             return $this->query($withTrashed)
-            ->where('id', $key)
-            ->get();
+                ->where('id', $key)
+                ->get();
+        }
+
+        if (preg_match('/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/', $key) == 1) {
+            return $this->query($withTrashed)
+                ->where('uuid', $key)
+                ->get();
         }
 
         return $this->query($withTrashed)
             ->where('key', $key)
-            ->orWhere('uuid', $key)
             ->get();
     }
 
