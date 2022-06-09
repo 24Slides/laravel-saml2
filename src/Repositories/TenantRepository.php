@@ -58,7 +58,7 @@ class TenantRepository
         }
 
         return $this->query($withTrashed)
-            ->orWhere('key', $key)
+            ->where('key', $key)
             ->orWhere('uuid', $key)
             ->get();
     }
