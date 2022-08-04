@@ -1,14 +1,14 @@
 {
-    "name": "24slides/laravel-saml2",
+    "name": "mkhyman/laravel-saml2",
     "type": "library",
     "description": "SAML2 Service Provider integration to your Laravel 5.4+ application, based on OneLogin toolkit",
     "keywords": ["laravel", "saml", "saml2", "onelogin", "sso"],
-    "homepage": "https://github.com/24slides/laravel-saml2",
+    "homepage": "https://github.com/mkhyman/laravel-saml2",
     "license": "MIT",
     "authors": [
         {
-            "name": "Artem Brezhnev",
-            "email": "brezzhnev@gmail.com"
+            "name": "Mike Hyman",
+            "email": "mky.hyman@gmail.com"
         }
     ],
     "require": {
