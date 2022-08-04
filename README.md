@@ -9,6 +9,13 @@
 
 An integration to add SSO to your service via SAML2 protocol based on [OneLogin](https://github.com/onelogin/php-saml) toolkit. 
 
+This is a fork of 24Slides/laravel-saml.
+
+Differences:
+
+- Allows Single Logout IDP response to use HTTP-POST not just HTTP-REDIRECT
+- Uses teneant key instead of tenant uuid for urls. 
+
 This package turns your application into Service Provider with the support of multiple Identity Providers.
 
 ## Requirements
