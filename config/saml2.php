@@ -185,7 +185,7 @@ return [
         |
         */
 
-        'x509cert' => env('SAML2_SP_CERT_x509',''),
+        'x509cert' => env('SAML2_SP_CERT_X509',''),
         'privateKey' => env('SAML2_SP_CERT_PRIVATEKEY',''),
 
         /*
