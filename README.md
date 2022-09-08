@@ -113,9 +113,9 @@ Event::listen(\Slides\Saml2\Events\SignedIn::class, function (\Slides\Saml2\Even
     $samlUser = $event->getSaml2User();
     
     $userData = [
-        'id' => $user->getUserId(),
-        'attributes' => $user->getAttributes(),
-        'assertion' => $user->getRawSamlAssertion()
+        'id' => $samlUser->getUserId(),
+        'attributes' => $samlUser->getAttributes(),
+        'assertion' => $samlUser->getRawSamlAssertion()
     ];
     
     $user = // find user by ID or attribute
