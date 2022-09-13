@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [2.0.11] - 2022-09-13
+
+### Fixed
+- Improve sls handling of errors to match acs action (PR #35, @dmyers)
+- Fix querying tenants via console commands when using PostgreSQL (issue #22)
+
 ## [2.0.10] - 2022-04-14
 
 ### Added
