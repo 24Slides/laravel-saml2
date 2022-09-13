@@ -86,10 +86,16 @@ class Saml2Controller extends Controller
      */
     public function sls(Auth $auth)
     {
-        $error = $auth->sls(config('saml2.retrieveParametersFromServer'));
+        $errors = $auth->sls(config('saml2.retrieveParametersFromServer'));
 
-        if (!empty($error)) {
-            throw new \Exception("Could not log out");
+        if (!empty($errors)) {
+            logger()->error('saml2.error_detail', ['error' => $auth->getLastErrorReason()]);
+            session()->flash('saml2.error_detail', [$auth->getLastErrorReason()]);
+
+            logger()->error('saml2.error', $errors);
+            session()->flash('saml2.error', $errors);
+
+            return redirect(config('saml2.errorRoute'));
         }
 
         return redirect(config('saml2.logoutRoute')); //may be set a configurable default
