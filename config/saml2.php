@@ -9,13 +9,13 @@ return [
     |
     | If "useRoutes" set to true, the package defines five new routes:
     |
-    | Method | URI                               | Name
-    | -------|-----------------------------------|------------------
-    | POST   | {routesPrefix}/{idpKey}/acs       | saml.acs
-    | GET    | {routesPrefix}/{idpKey}/login     | saml.login
-    | GET    | {routesPrefix}/{idpKey}/logout    | saml.logout
-    | GET    | {routesPrefix}/{idpKey}/metadata  | saml.metadata
-    | GET    | {routesPrefix}/{idpKey}/sls       | saml.sls
+    | Method | URI                             | Name
+    | -------|---------------------------------|------------------
+    | POST   | {routesPrefix}/{uuid}/acs       | saml.acs
+    | GET    | {routesPrefix}/{uuid}/login     | saml.login
+    | GET    | {routesPrefix}/{uuid}/logout    | saml.logout
+    | GET    | {routesPrefix}/{uuid}/metadata  | saml.metadata
+    | GET    | {routesPrefix}/{uuid}/sls       | saml.sls
     |
     */
 
