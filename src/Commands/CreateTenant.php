@@ -93,7 +93,8 @@ class CreateTenant extends \Illuminate\Console\Command
             return;
         }
 
-        $tenant = new \Slides\Saml2\Models\Tenant([
+        $class = config('saml2.tenantModel');
+        $tenant = new $class([
             'key' => $key,
             'uuid' => \Ramsey\Uuid\Uuid::uuid4(),
             'idp_entity_id' => $entityId,

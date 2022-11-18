@@ -20,7 +20,8 @@ class TenantRepository
      */
     public function query(bool $withTrashed = false)
     {
-        $query = Tenant::query();
+        $class = config('saml2.tenantModel');
+        $query = $class::query();
 
         if($withTrashed) {
             $query->withTrashed();
