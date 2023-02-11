@@ -2,6 +2,7 @@
 
 namespace Slides\Saml2\Commands;
 
+use Slides\Saml2\Models\Tenant;
 use Illuminate\Support\Str;
 
 /**
@@ -22,7 +23,7 @@ trait RendersTenants
     protected function renderTenants($tenants, string $title = null)
     {
         /** @var \Slides\Saml2\Models\Tenant[]|\Illuminate\Database\Eloquent\Collection $tenants */
-        $tenants = $tenants instanceof \Slides\Saml2\Models\Tenant
+        $tenants = $tenants instanceof Tenant
             ? collect([$tenants])
             : $tenants;
 
@@ -53,7 +54,7 @@ trait RendersTenants
      *
      * @return array
      */
-    protected function getTenantColumns(\Slides\Saml2\Models\Tenant $tenant)
+    protected function getTenantColumns(Tenant $tenant)
     {
         return [
             'ID' => $tenant->id,
@@ -79,7 +80,7 @@ trait RendersTenants
      *
      * @return void
      */
-    protected function renderTenantCredentials(\Slides\Saml2\Models\Tenant $tenant)
+    protected function renderTenantCredentials(Tenant $tenant)
     {
         $this->output->section('Credentials for the tenant');
 
