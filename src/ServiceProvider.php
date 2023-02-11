@@ -50,6 +50,7 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
     protected function bootPublishes()
     {
         $source = __DIR__ . '/../config/saml2.php';
+
         $this->publishes([$source => config_path('saml2.php')]);
         $this->mergeConfigFrom($source, 'saml2');
     }

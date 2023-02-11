@@ -7,7 +7,7 @@ return [
     | Tenant Model
     |--------------------------------------------------------------------------
     |
-    | This will allow you to override the teant model with your own.
+    | This will allow you to override the tenant model with your own.
     |
     */
 
