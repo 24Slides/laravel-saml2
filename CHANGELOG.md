@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [2.1.0] - 2023-02-11
+
+### Added
+- Add an ability to customize Tenant model (PR #49, @dmyers)
+
+### Fixed
+
+- Change idpKey to uuid in saml2.php (PR #45, @joelpittet)
+
 ## [2.0.11] - 2022-09-13
 
 ### Fixed
@@ -129,7 +138,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Replaced underscores with dots in routes
 - Minor refactoring, formatting
 
-[Unreleased]: https://github.com/24Slides/laravel-saml2/compare/2.0.10...HEAD
+[Unreleased]: https://github.com/24Slides/laravel-saml2/compare/2.1.0...HEAD
+[2.1.0]: https://github.com/24Slides/laravel-saml2/compare/2.0.10...2.1.0
 [2.0.10]: https://github.com/24Slides/laravel-saml2/compare/2.0.9...2.0.10
 [2.0.9]: https://github.com/24Slides/laravel-saml2/compare/2.0.8...2.0.9
 [2.0.8]: https://github.com/24Slides/laravel-saml2/compare/2.0.7...2.0.8
