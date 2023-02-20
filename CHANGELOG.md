@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [2.2.0] - 2023-02-20
+
+### Added
+- Add support for Laravel 10 (PR #56, @danijelk)
+
 ## [2.1.0] - 2023-02-11
 
 ### Added
@@ -138,7 +143,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Replaced underscores with dots in routes
 - Minor refactoring, formatting
 
-[Unreleased]: https://github.com/24Slides/laravel-saml2/compare/2.1.0...HEAD
+[Unreleased]: https://github.com/24Slides/laravel-saml2/compare/2.2.0...HEAD
+[2.2.0]: https://github.com/24Slides/laravel-saml2/compare/2.1.0...2.2.0
 [2.1.0]: https://github.com/24Slides/laravel-saml2/compare/2.0.10...2.1.0
 [2.0.10]: https://github.com/24Slides/laravel-saml2/compare/2.0.9...2.0.10
 [2.0.9]: https://github.com/24Slides/laravel-saml2/compare/2.0.8...2.0.9
