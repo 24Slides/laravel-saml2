@@ -115,7 +115,7 @@ class Saml2Controller extends Controller
     {
         $redirectUrl = $auth->getTenant()->relay_state_url ?: config('saml2.loginRoute');
 
-        $auth->login(
+        $redirectUrl = $auth->login(
             $request->query('returnTo', $redirectUrl),
             [],
             false,
@@ -138,10 +138,8 @@ class Saml2Controller extends Controller
      */
     public function logout(Request $request, Auth $auth)
     {
-        $redirectUrl = $request->query('returnTo');
-        
-        $auth->logout(
-            $redirectUrl,
+        $redirectUrl = $auth->logout(
+            $request->query('returnTo'),
             $request->query('nameId'),
             $request->query('sessionIndex'),
             null,
