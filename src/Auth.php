@@ -184,10 +184,10 @@ class Auth
      * @throws \Exception
      * @throws \InvalidArgumentException If metadata is not correctly set
      */
-    public function getMetadata()
+    public function getMetadata($validUntil = null)
     {
         $settings = $this->base->getSettings();
-        $metadata = $settings->getSPMetadata();
+        $metadata = $settings->getSPMetadata(false, $validUntil);
         $errors = $settings->validateMetadata($metadata);
 
         if (!count($errors)) {
