@@ -3,13 +3,8 @@
 namespace Slides\Saml2;
 
 use OneLogin\Saml2\Auth as OneLoginAuth;
-use Slides\Saml2\Models\Tenant;
+use Slides\Saml2\Contracts\IdentityProvider;
 
-/**
- * Class Saml2User
- *
- * @package Slides\Saml2
- */
 class Saml2User
 {
     /**
@@ -22,20 +17,20 @@ class Saml2User
     /**
      * The tenant user belongs to.
      *
-     * @var Tenant
+     * @var IdentityProvider
      */
-    protected $tenant;
+    protected $idp;
 
     /**
      * Saml2User constructor.
      *
      * @param OneLoginAuth $auth
-     * @param Tenant $tenant
+     * @param IdentityProvider $idp
      */
-    public function __construct(OneLoginAuth $auth, Tenant $tenant)
+    public function __construct(OneLoginAuth $auth, IdentityProvider $idp)
     {
         $this->auth = $auth;
-        $this->tenant = $tenant;
+        $this->idp = $idp;
     }
 
     /**
@@ -69,7 +64,7 @@ class Saml2User
     {
         return $this->auth->getAttribute($name);
     }
-    
+
     /**
      * The attributes retrieved from assertion processed this request.
      *
@@ -118,11 +113,11 @@ class Saml2User
      */
     public function parseUserAttribute($samlAttribute = null, $propertyName = null)
     {
-        if(empty($samlAttribute)) {
+        if (empty($samlAttribute)) {
             return null;
         }
 
-        if(empty($propertyName)) {
+        if (empty($propertyName)) {
             return $this->getAttribute($samlAttribute);
         }
 
@@ -138,7 +133,7 @@ class Saml2User
      */
     public function parseAttributes($attributes = [])
     {
-        foreach($attributes as $propertyName => $samlAttribute) {
+        foreach ($attributes as $propertyName => $samlAttribute) {
             $this->parseUserAttribute($samlAttribute, $propertyName);
         }
     }
@@ -148,7 +143,7 @@ class Saml2User
      *
      * @return null|string
      */
-    public function getSessionIndex()
+    public function getSessionIndex(): ?string
     {
         return $this->auth->getSessionIndex();
     }
@@ -158,7 +153,7 @@ class Saml2User
      *
      * @return string
      */
-    public function getNameId()
+    public function getNameId(): string
     {
         return $this->auth->getNameId();
     }
@@ -166,22 +161,22 @@ class Saml2User
     /**
      * Set a tenant
      *
-     * @param Tenant $tenant
+     * @param IdentityProvider $idp
      *
      * @return void
      */
-    public function setTenant(Tenant $tenant)
+    public function setIdp(IdentityProvider $idp)
     {
-        $this->tenant = $tenant;
+        $this->idp = $idp;
     }
 
     /**
      * Get a resolved tenant.
      *
-     * @return Tenant|null
+     * @return IdentityProvider|null
      */
-    public function getTenant()
+    public function getIdp()
     {
-        return $this->tenant;
+        return $this->idp;
     }
 }

@@ -4,11 +4,6 @@ namespace Slides\Saml2\Repositories;
 
 use Slides\Saml2\Models\Tenant;
 
-/**
- * Class TenantRepository
- *
- * @package Slides\Saml2\Repositories
- */
 class TenantRepository
 {
     /**

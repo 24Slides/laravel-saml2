@@ -11,7 +11,22 @@ return [
     |
     */
 
-    'tenantModel' => \Slides\Saml2\Models\Tenant::class,
+    'tenantModel' => \Slides\Saml2\Models\IdentityProvider::class,
+
+    /*
+    |--------------------------------------------------------------------------
+    | Classes that implement Identity Provider and config resolution logic.
+    |--------------------------------------------------------------------------
+    |
+    | Here you may customize the way Identity Provider gets resolved,
+    | as well as configuration adjustments of the SP once IdP is resolved.
+    |
+    */
+
+    'resolvers' => [
+        'idp' => \Slides\Saml2\Resolvers\IdentityProviderResolver::class,
+        'config' => \Slides\Saml2\Resolvers\ConfigResolver::class
+    ],
 
     /*
     |--------------------------------------------------------------------------

@@ -2,11 +2,6 @@
 
 namespace Slides\Saml2;
 
-/**
- * Class ServiceProvider
- *
- * @package Slides\Saml2
- */
 class ServiceProvider extends \Illuminate\Support\ServiceProvider
 {
     /**
@@ -15,6 +10,18 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
      * @var bool
      */
     protected $defer = false;
+
+    /**
+     * Register any application services.
+     *
+     * @return void
+     */
+    public function register()
+    {
+        $this->app->bind(\Slides\Saml2\Contracts\IdentityProvider::class, config('saml2.tenantModel'));
+        $this->app->bind(\Slides\Saml2\Contracts\ResolvesIdentityProvider::class, config('saml2.resolvers.idp'));
+        $this->app->bind(\Slides\Saml2\Contracts\ResolvesIdpConfig::class, config('saml2.resolvers.config'));
+    }
 
     /**
      * Bootstrap the application events.
@@ -37,7 +44,7 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
      */
     protected function bootRoutes()
     {
-        if($this->app['config']['saml2.useRoutes'] == true) {
+        if ($this->app['config']['saml2.useRoutes']) {
             include __DIR__ . '/Http/routes.php';
         }
     }
@@ -77,7 +84,7 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
      *
      * @return void
      */
-    protected function bootMiddleware()
+    protected function bootMiddleware(): void
     {
         $this->app['router']->aliasMiddleware('saml2.resolveTenant', \Slides\Saml2\Http\Middleware\ResolveTenant::class);
     }
@@ -87,7 +94,7 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
      *
      * @return void
      */
-    protected function loadMigrations()
+    protected function loadMigrations(): void
     {
         if (config('saml2.load_migrations', true)) {
             $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
@@ -99,7 +106,7 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
      *
      * @return array
      */
-    public function provides()
+    public function provides(): array
     {
         return [];
     }

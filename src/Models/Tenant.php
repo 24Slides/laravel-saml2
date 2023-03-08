@@ -4,6 +4,7 @@ namespace Slides\Saml2\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Slides\Saml2\Concerns\IdentityProvider;
 
 /**
  * Class Tenant
@@ -24,7 +25,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  *
  * @package Slides\Saml2\Models
  */
-class Tenant extends Model
+class Tenant extends Model implements IdentityProvider
 {
     use SoftDeletes;
 
@@ -60,4 +61,52 @@ class Tenant extends Model
     protected $casts = [
         'metadata' => 'array'
     ];
+
+    /**
+     * @return string
+     */
+    public function idpUuid(): string
+    {
+        return $this->uuid;
+    }
+
+    /**
+     * @return string
+     */
+    public function idpEntityId(): string
+    {
+        return $this->idp_entity_id;
+    }
+
+    /**
+     * @return string
+     */
+    public function idpLoginUrl(): string
+    {
+        return $this->idp_login_url;
+    }
+
+    /**
+     * @return string
+     */
+    public function idpLogoutUrl(): string
+    {
+        return $this->idp_logout_url;
+    }
+
+    /**
+     * @return string
+     */
+    public function idpX509cert(): string
+    {
+        return $this->idpX509cert();
+    }
+
+    /**
+     * @return string
+     */
+    public function idpNameIdFormat(): string
+    {
+        return $this->name_id_format;
+    }
 }

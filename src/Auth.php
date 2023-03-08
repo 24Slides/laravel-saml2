@@ -4,8 +4,8 @@ namespace Slides\Saml2;
 
 use OneLogin\Saml2\Auth as OneLoginAuth;
 use OneLogin\Saml2\Error as OneLoginError;
+use Slides\Saml2\Contracts\IdentityProvider;
 use Slides\Saml2\Events\SignedOut;
-use Slides\Saml2\Models\Tenant;
 
 /**
  * Class Auth
@@ -24,20 +24,20 @@ class Auth
     /**
      * The resolved tenant.
      *
-     * @var Tenant
+     * @var IdentityProvider
      */
-    protected $tenant;
+    protected $idp;
 
     /**
      * Auth constructor.
      *
      * @param OneLoginAuth $auth
-     * @param Tenant $tenant
+     * @param IdentityProvider $idp
      */
-    public function __construct(OneLoginAuth $auth, Tenant $tenant)
+    public function __construct(OneLoginAuth $auth, IdentityProvider $idp)
     {
         $this->base = $auth;
-        $this->tenant = $tenant;
+        $this->idp = $idp;
     }
 
     /**
@@ -57,7 +57,7 @@ class Auth
      */
     public function getSaml2User()
     {
-        return new Saml2User($this->base, $this->tenant);
+        return new Saml2User($this->base, $this->idp);
     }
 
     /**
@@ -225,22 +225,22 @@ class Auth
     /**
      * Set a tenant
      *
-     * @param Tenant $tenant
+     * @param IdentityProvider $idp
      *
      * @return void
      */
-    public function setTenant(Tenant $tenant)
+    public function setIdp(IdentityProvider $idp)
     {
-        $this->tenant = $tenant;
+        $this->idp = $idp;
     }
 
     /**
      * Get a resolved tenant.
      *
-     * @return Tenant|null
+     * @return IdentityProvider|null
      */
-    public function getTenant()
+    public function getIdp()
     {
-        return $this->tenant;
+        return $this->idp;
     }
 }

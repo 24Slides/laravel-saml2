@@ -3,7 +3,7 @@
 namespace Slides\Saml2\Commands;
 
 use Slides\Saml2\Helpers\ConsoleHelper;
-use Slides\Saml2\Models\Tenant;
+use Slides\Saml2\Models\IdentityProvider;
 use Slides\Saml2\Repositories\TenantRepository;
 
 /**
@@ -94,7 +94,7 @@ class CreateTenant extends \Illuminate\Console\Command
             return;
         }
 
-        $class = config('saml2.tenantModel', Tenant::class);
+        $class = config('saml2.tenantModel', IdentityProvider::class);
         $tenant = new $class([
             'key' => $key,
             'uuid' => \Ramsey\Uuid\Uuid::uuid4(),
