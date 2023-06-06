@@ -46,8 +46,6 @@ class Saml2Controller extends Controller
     public function acs(Auth $auth)
     {
         $errors = $auth->acs();
-        //debug_print_backtrace();
-        // dd($errors);
         if (!empty($errors)) {
             logger()->error('saml2.error_detail', ['error' => $auth->getLastErrorReason()]);
             session()->flash('saml2.error_detail', [$auth->getLastErrorReason()]);
