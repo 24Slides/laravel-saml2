@@ -149,6 +149,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Minor refactoring, formatting
 
 [Unreleased]: https://github.com/24Slides/laravel-saml2/compare/2.2.0...HEAD
+[2.2.1]: https://github.com/24Slides/laravel-saml2/compare/2.2.0...2.2.1
 [2.2.0]: https://github.com/24Slides/laravel-saml2/compare/2.1.0...2.2.0
 [2.1.0]: https://github.com/24Slides/laravel-saml2/compare/2.0.10...2.1.0
 [2.0.10]: https://github.com/24Slides/laravel-saml2/compare/2.0.9...2.0.10
