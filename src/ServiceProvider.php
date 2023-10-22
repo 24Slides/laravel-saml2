@@ -89,7 +89,9 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
      */
     protected function loadMigrations()
     {
-        $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
+        if (config('saml2.load_migrations', true)) {
+            $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
+        }
     }
 
     /**
