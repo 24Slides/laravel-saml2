@@ -385,4 +385,13 @@ return [
         ],
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Load default migrations
+    |--------------------------------------------------------------------------
+    |
+    | This will allow you to disable or enable the default migrations of the package.
+    |
+    */
+    'load_migrations' => true,
 ];
