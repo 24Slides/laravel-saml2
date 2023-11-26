@@ -4,12 +4,7 @@ namespace Slides\Saml2\Commands;
 
 use Slides\Saml2\Repositories\TenantRepository;
 
-/**
- * Class ListTenants
- *
- * @package Slides\Saml2\Commands
- */
-class ListTenants extends \Illuminate\Console\Command
+class ListAll extends \Illuminate\Console\Command
 {
     use RendersTenants;
 
@@ -18,7 +13,7 @@ class ListTenants extends \Illuminate\Console\Command
      *
      * @var string
      */
-    protected $signature = 'saml2:list-tenants';
+    protected $signature = 'saml2:idp-list';
 
     /**
      * The console command description.
@@ -30,7 +25,7 @@ class ListTenants extends \Illuminate\Console\Command
     /**
      * @var TenantRepository
      */
-    protected $tenants;
+    protected TenantRepository $tenants;
 
     /**
      * DeleteTenant constructor.
@@ -53,7 +48,7 @@ class ListTenants extends \Illuminate\Console\Command
     {
         $tenants = $this->tenants->all();
 
-        if($tenants->isEmpty()) {
+        if ($tenants->isEmpty()) {
             $this->info('No tenants found');
             return;
         }

@@ -2,7 +2,7 @@
 
 namespace Slides\Saml2\Commands;
 
-use Slides\Saml2\Models\IdentityProvider;
+use Slides\Saml2\Contracts\IdentityProvider;
 use Illuminate\Support\Str;
 
 /**
@@ -15,7 +15,7 @@ trait RendersTenants
     /**
      * Render tenants in a table.
      *
-     * @param \Slides\Saml2\Models\IdentityProvider|\Illuminate\Support\Collection $tenants
+     * @param IdentityProvider|\Illuminate\Support\Collection $tenants
      * @param string|null $title
      *
      * @return void
@@ -50,7 +50,7 @@ trait RendersTenants
     /**
      * Get a columns of the Tenant.
      *
-     * @param \Slides\Saml2\Models\IdentityProvider $tenant
+     * @param IdentityProvider $tenant
      *
      * @return array
      */
@@ -76,7 +76,7 @@ trait RendersTenants
     /**
      * Render a tenant credentials.
      *
-     * @param \Slides\Saml2\Models\IdentityProvider $tenant
+     * @param IdentityProvider $tenant
      *
      * @return void
      */
