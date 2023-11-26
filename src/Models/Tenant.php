@@ -3,8 +3,9 @@
 namespace Slides\Saml2\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Slides\Saml2\Concerns\IdentityProvider;
+use Slides\Saml2\Contracts\IdentityProvider;
 
 /**
  * Class Tenant
@@ -18,6 +19,8 @@ use Slides\Saml2\Concerns\IdentityProvider;
  * @property string $idp_x509_cert
  * @property string $relay_state_url
  * @property string $name_id_format
+ * @property int $authenticatable_id
+ * @property string $authenticatable_type
  * @property array $metadata
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
@@ -50,6 +53,8 @@ class Tenant extends Model implements IdentityProvider
         'idp_x509_cert',
         'relay_state_url',
         'name_id_format',
+        'authenticatable_id',
+        'authenticatable_type',
         'metadata'
     ];
 
@@ -99,7 +104,7 @@ class Tenant extends Model implements IdentityProvider
      */
     public function idpX509cert(): string
     {
-        return $this->idpX509cert();
+        return $this->idp_x509_cert;
     }
 
     /**
@@ -108,5 +113,15 @@ class Tenant extends Model implements IdentityProvider
     public function idpNameIdFormat(): string
     {
         return $this->name_id_format;
+    }
+
+    /**
+     * The authenticatable model.
+     *
+     * @return MorphTo
+     */
+    public function authenticatable(): MorphTo
+    {
+        return $this->morphTo();
     }
 }
