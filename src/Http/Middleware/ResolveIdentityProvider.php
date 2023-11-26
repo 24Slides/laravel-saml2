@@ -3,9 +3,8 @@
 namespace Slides\Saml2\Http\Middleware;
 
 use Illuminate\Http\Request;
-use Slides\Saml2\Concerns\ResolvesIdentityProvider;
 use Slides\Saml2\Exceptions\IdentityProviderNotFound;
-use Slides\Saml2\Repositories\TenantRepository;
+use Slides\Saml2\Contracts\ResolvesIdentityProvider;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Slides\Saml2\OneLoginBuilder;
@@ -15,12 +14,12 @@ class ResolveIdentityProvider
     /**
      * @var ResolvesIdentityProvider
      */
-    protected $resolver;
+    protected ResolvesIdentityProvider $resolver;
 
     /**
      * @var OneLoginBuilder
      */
-    protected $builder;
+    protected OneLoginBuilder $builder;
 
     /**
      * ResolveTenant constructor.

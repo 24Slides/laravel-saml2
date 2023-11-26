@@ -86,7 +86,7 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
      */
     protected function bootMiddleware(): void
     {
-        $this->app['router']->aliasMiddleware('saml2.resolveTenant', \Slides\Saml2\Http\Middleware\ResolveTenant::class);
+        $this->app['router']->aliasMiddleware('saml2.resolveIdentityProvider', \Slides\Saml2\Http\Middleware\ResolveIdentityProvider::class);
     }
 
     /**

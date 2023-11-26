@@ -11,7 +11,7 @@ return [
     |
     */
 
-    'tenantModel' => \Slides\Saml2\Models\IdentityProvider::class,
+    'tenantModel' => \Slides\Saml2\Models\Tenant::class,
 
     /*
     |--------------------------------------------------------------------------

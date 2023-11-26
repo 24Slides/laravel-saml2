@@ -13,7 +13,7 @@ class IdentityProviderResolver implements ResolvesIdentityProvider
     /**
      * @var TenantRepository
      */
-    protected $tenants;
+    protected TenantRepository $tenants;
 
     /**
      * @param TenantRepository $tenants
