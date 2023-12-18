@@ -15,7 +15,7 @@ use OneLogin\Saml2\Error as OneLoginError;
  *
  * @package Slides\Saml2
  */
-class SamlSession
+class Session
 {
     /**
      * @var TenantRepository
