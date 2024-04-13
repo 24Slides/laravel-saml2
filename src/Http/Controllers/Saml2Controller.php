@@ -45,7 +45,7 @@ class Saml2Controller extends Controller
 
         if ($errors) {
             $error = $auth->getLastErrorReason();
-            $uuid = $auth->getTenant()->uuid;
+            $uuid = $auth->getIdp()->uuid;
 
             logger()->error('saml2.error_detail', compact('uuid', 'error'));
             session()->flash('saml2.error_detail', [$error]);
@@ -96,9 +96,9 @@ class Saml2Controller extends Controller
     {
         $errors = $auth->sls(config('saml2.retrieveParametersFromServer'));
 
-        if (!empty($errors)) {
+        if (count($errors)) {
             $error = $auth->getLastErrorReason();
-            $uuid = $auth->getTenant()->uuid;
+            $uuid = $auth->getIdp()->uuid;
 
             logger()->error('saml2.error_detail', compact('uuid', 'error'));
             session()->flash('saml2.error_detail', [$error]);

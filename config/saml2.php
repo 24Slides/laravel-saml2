@@ -4,14 +4,14 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Tenant Model
+    | Identity Provider Model
     |--------------------------------------------------------------------------
     |
-    | This will allow you to override the tenant model with your own.
+    | This will allow you to override the Identity Provider model with your own.
     |
     */
 
-    'tenantModel' => \Slides\Saml2\Models\Tenant::class,
+    'idpModel' => \Slides\Saml2\Models\IdentityProvider::class,
 
     /*
     |--------------------------------------------------------------------------
@@ -25,7 +25,26 @@ return [
 
     'resolvers' => [
         'idp' => \Slides\Saml2\Resolvers\IdentityProviderResolver::class,
-        'config' => \Slides\Saml2\Resolvers\ConfigResolver::class
+        'config' => \Slides\Saml2\Resolvers\ConfigResolver::class,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | User authentication settings.
+    |--------------------------------------------------------------------------
+    |
+    | Here you may specify the settings for default (basic) user authorization.
+    |
+    | You can extend this functionality by implementing your own user resolver.
+    | Or completely disable it and use Slides\Saml2\Events\SignedIn event instead.
+    |
+    */
+
+    'auth' => [
+        'enabled' => env('SAML2_AUTHORIZE_USER', true),
+        'resolver' => \Slides\Saml2\Resolvers\UserResolver::class,
+        'userModel' => \App\Models\User::class,
+        'createUser' => env('SAML2_CREATE_USER', true),
     ],
 
     /*
@@ -408,5 +427,5 @@ return [
     | This will allow you to disable or enable the default migrations of the package.
     |
     */
-    'load_migrations' => true,
+    'loadMigrations' => true,
 ];

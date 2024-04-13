@@ -6,7 +6,8 @@ use Cerbero\CommandValidator\ValidatesInput;
 use Illuminate\Validation\Rules\In;
 use Illuminate\Validation\Rules\Unique;
 use Slides\Saml2\Helpers\ConsoleHelper;
-use Slides\Saml2\Repositories\TenantRepository;
+use Slides\Saml2\Repositories\IdentityProviderRepository;
+use Ramsey\Uuid\Uuid;
 
 class Create extends \Illuminate\Console\Command
 {
@@ -36,16 +37,16 @@ class Create extends \Illuminate\Console\Command
     protected $description = 'Create an Identity Provider';
 
     /**
-     * @var TenantRepository
+     * @var IdentityProviderRepository
      */
-    protected TenantRepository $tenants;
+    protected IdentityProviderRepository $tenants;
 
     /**
      * DeleteTenant constructor.
      *
-     * @param TenantRepository $tenants
+     * @param IdentityProviderRepository $tenants
      */
-    public function __construct(TenantRepository $tenants)
+    public function __construct(IdentityProviderRepository $tenants)
     {
         $this->tenants = $tenants;
 
@@ -61,10 +62,10 @@ class Create extends \Illuminate\Console\Command
     {
         $metadata = ConsoleHelper::stringToArray($this->option('metadata'));
 
-        $model = config('saml2.tenantModel');
+        $model = config('saml2.idpModel');
         $tenant = new $model([
             'key' => $this->option('key'),
-            'uuid' => \Ramsey\Uuid\Uuid::uuid4(),
+            'uuid' => Uuid::uuid4(),
             'idp_entity_id' => $this->option('entityId'),
             'idp_login_url' => $this->option('loginUrl'),
             'idp_logout_url' => $this->option('logoutUrl'),
@@ -75,7 +76,7 @@ class Create extends \Illuminate\Console\Command
         ]);
 
         if(!$tenant->save()) {
-            $this->error('Tenant cannot be saved.');
+            $this->error('IdentityProvidable cannot be saved.');
             return;
         }
 
@@ -107,7 +108,7 @@ class Create extends \Illuminate\Console\Command
     protected function rules(): array
     {
         return [
-            'key' => ['string', new Unique(config('saml2.tenantModel'), 'key')],
+            'key' => ['string', new Unique(config('saml2.idpModel'), 'key')],
             'entityId' => 'string',
             'loginUrl' => 'string|url',
             'logoutUrl' => 'string|url',

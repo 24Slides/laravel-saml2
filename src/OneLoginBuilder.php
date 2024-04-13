@@ -6,7 +6,7 @@ use OneLogin\Saml2\Auth as OneLoginAuth;
 use OneLogin\Saml2\Utils as OneLoginUtils;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Contracts\Container\Container;
-use Slides\Saml2\Contracts\IdentityProvider;
+use Slides\Saml2\Contracts\IdentityProvidable;
 use Slides\Saml2\Contracts\ResolvesIdpConfig;
 use Illuminate\Support\Arr;
 
@@ -44,11 +44,11 @@ class OneLoginBuilder
     /**
      * Adjust OneLogin configuration according to the given identity provider.
      *
-     * @param IdentityProvider $idp
+     * @param IdentityProvidable $idp
      *
      * @return void
      */
-    public function configureIdp(IdentityProvider $idp)
+    public function configureIdp(IdentityProvidable $idp)
     {
         if ($this->app['config']->get('saml2.proxyVars', false)) {
             OneLoginUtils::setProxyVars(true);

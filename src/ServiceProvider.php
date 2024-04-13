@@ -20,9 +20,15 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
     {
         $this->mergeConfigFrom(__DIR__ . '/../config/saml2.php', 'saml2');
 
-        $this->app->bind(\Slides\Saml2\Contracts\IdentityProvider::class, config('saml2.tenantModel'));
+        $this->app->bind(\Slides\Saml2\Contracts\IdentityProvidable::class, config('saml2.tenantModel'));
         $this->app->bind(\Slides\Saml2\Contracts\ResolvesIdentityProvider::class, config('saml2.resolvers.idp'));
         $this->app->bind(\Slides\Saml2\Contracts\ResolvesIdpConfig::class, config('saml2.resolvers.config'));
+
+        if (config('saml2.auth.enabled')) {
+            $this->app->bind(\Slides\Saml2\Contracts\ResolvesUser::class, config('saml2.auth.resolver'));
+        }
+
+        $this->app->register(EventServiceProvider::class);
     }
 
     /**

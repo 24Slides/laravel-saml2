@@ -3,13 +3,12 @@
 namespace Slides\Saml2\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Slides\Saml2\Contracts\IdentityProvider;
+use Slides\Saml2\Contracts\IdentityProvidable;
 
 /**
- * Class Tenant
- *
  * @property int $id
  * @property string $uuid
  * @property string $key
@@ -19,16 +18,17 @@ use Slides\Saml2\Contracts\IdentityProvider;
  * @property string $idp_x509_cert
  * @property string $relay_state_url
  * @property string $name_id_format
- * @property int $authenticatable_id
- * @property string $authenticatable_type
+ * @property int|null $owner_id
+ * @property string|null $owner_type
  * @property array $metadata
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
  * @property \Carbon\Carbon $deleted_at
  *
- * @package Slides\Saml2\Models
+ * @property-read \Illuminate\Database\Eloquent\Model|null $tenant
+ * @property-read \Illuminate\Database\Eloquent\Model $sessions
  */
-class Tenant extends Model implements IdentityProvider
+class IdentityProvider extends Model implements IdentityProvidable
 {
     use SoftDeletes;
 
@@ -37,7 +37,7 @@ class Tenant extends Model implements IdentityProvider
      *
      * @var string
      */
-    protected $table = 'saml2_tenants';
+    protected $table = 'saml2_identity_providers';
 
     /**
      * The attributes that are mass assignable.
@@ -53,8 +53,8 @@ class Tenant extends Model implements IdentityProvider
         'idp_x509_cert',
         'relay_state_url',
         'name_id_format',
-        'authenticatable_id',
-        'authenticatable_type',
+        'tenant_id',
+        'tenant_type',
         'metadata'
     ];
 
@@ -102,7 +102,7 @@ class Tenant extends Model implements IdentityProvider
     /**
      * @return string
      */
-    public function idpX509cert(): string
+    public function idpX509cert(): ?string
     {
         return $this->idp_x509_cert;
     }
@@ -116,12 +116,22 @@ class Tenant extends Model implements IdentityProvider
     }
 
     /**
-     * The authenticatable model.
+     * The tenant model.
      *
      * @return MorphTo
      */
-    public function authenticatable(): MorphTo
+    public function tenant(): MorphTo
     {
         return $this->morphTo();
+    }
+
+    /**
+     * The sessions of the tenant.
+     *
+     * @return HasMany
+     */
+    public function sessions(): HasMany
+    {
+        return $this->hasMany(Session::class);
     }
 }

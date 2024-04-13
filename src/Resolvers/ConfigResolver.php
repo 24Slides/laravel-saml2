@@ -2,20 +2,26 @@
 
 namespace Slides\Saml2\Resolvers;
 
-use Slides\Saml2\Contracts\IdentityProvider;
+use Slides\Saml2\Contracts\IdentityProvidable;
 use Slides\Saml2\Contracts\ResolvesIdpConfig;
+use Slides\Saml2\Exceptions\ConfigurationException;
+
 class ConfigResolver implements ResolvesIdpConfig
 {
     /**
      * Adjust SAML configuration for the given identity provider.
      *
-     * @param IdentityProvider $idp
+     * @param IdentityProvidable $idp
      * @param array $config
      *
      * @return array
      */
-    public function resolve(IdentityProvider $idp, array $config): array
+    public function resolve(IdentityProvidable $idp, array $config): array
     {
+        if ($idp->idpX509cert() === null) {
+            throw new ConfigurationException('Identity Provider certificate is missing');
+        }
+
         $config['idp'] = [
             'entityId' => $idp->idpEntityId(),
             'singleSignOnService' => ['url' => $idp->idpLoginUrl()],

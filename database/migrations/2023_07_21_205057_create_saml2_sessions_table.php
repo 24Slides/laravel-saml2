@@ -15,7 +15,9 @@ class CreateSaml2SessionsTable extends Migration
     {
         Schema::create('saml2_sessions', function (Blueprint $table) {
             $table->id();
-
+            $table->foreignId('idp_id')->constrained('saml2_identity_providers');
+            $table->foreignId('user_id')->nullable();
+            $table->json('payload');
             $table->timestamps('created_at');
         });
     }

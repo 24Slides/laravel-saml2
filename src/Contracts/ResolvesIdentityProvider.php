@@ -2,6 +2,8 @@
 
 namespace Slides\Saml2\Contracts;
 
+use Illuminate\Http\Request;
+
 interface ResolvesIdentityProvider
 {
     /**
@@ -9,7 +11,7 @@ interface ResolvesIdentityProvider
      *
      * @param Request $request
      *
-     * @return IdentityProvider|null
+     * @return IdentityProvidable|null
      */
-    public function resolve($request): ?IdentityProvider;
+    public function resolve(Request $request): ?IdentityProvidable;
 }

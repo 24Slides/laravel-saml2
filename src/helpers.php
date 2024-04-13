@@ -16,8 +16,8 @@ if (!function_exists('saml_url'))
     {
         $target = \Illuminate\Support\Facades\URL::to($path, $parameters, $secure);
 
-        if(!$uuid) {
-            if(!$uuid = saml_tenant_uuid()) {
+        if (!$uuid) {
+            if (!$uuid = saml_idp_uuid()) {
                 return $target;
             }
         }
@@ -41,8 +41,8 @@ if (!function_exists('saml_route'))
     {
         $target = \Illuminate\Support\Facades\URL::route($name, $parameters, true);
 
-        if(!$uuid) {
-            if(!$uuid = saml_tenant_uuid()) {
+        if (!$uuid) {
+            if (!$uuid = saml_idp_uuid()) {
                 return $target;
             }
         }
@@ -51,15 +51,15 @@ if (!function_exists('saml_route'))
     }
 }
 
-if (!function_exists('saml_tenant_uuid'))
+if (!function_exists('saml_idp_uuid'))
 {
     /**
-     * Get a resolved Tenant UUID based on current URL.
+     * Get a resolved Identity Provider UUID based on current URL.
      *
      * @return string|null
      */
-    function saml_tenant_uuid()
+    function saml_idp_uuid()
     {
-        return session()->get('saml2.tenant.uuid');
+        return session()->get('saml2.idp.uuid');
     }
 }

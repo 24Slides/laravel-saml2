@@ -2,7 +2,7 @@
 
 namespace Slides\Saml2\Contracts;
 
-interface IdentityProvider
+interface IdentityProvidable
 {
     public function idpUuid();
 
@@ -12,7 +12,7 @@ interface IdentityProvider
 
     public function idpLogoutUrl(): string;
 
-    public function idpX509cert(): string;
+    public function idpX509cert(): ?string;
 
     public function idpNameIdFormat(): string;
 }

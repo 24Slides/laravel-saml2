@@ -50,12 +50,12 @@ class ResolveIdentityProvider
         }
 
         if (config('saml2.debug')) {
-            Log::debug('[Saml2] Tenant resolved', [
+            Log::debug('[Saml2] Identity Provider resolved', [
                 'uuid' => $idp->idpUuid()
             ]);
         }
 
-        session()->flash('saml2.tenant.uuid', $idp->idpUuid());
+        session()->flash('saml2.idp.uuid', $idp->idpUuid());
 
         $this->builder->configureIdp($idp);
 

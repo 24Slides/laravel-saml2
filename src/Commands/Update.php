@@ -7,7 +7,7 @@ use Illuminate\Validation\Rules\Exists;
 use Illuminate\Validation\Rules\In;
 use Illuminate\Validation\Rules\Unique;
 use Slides\Saml2\Helpers\ConsoleHelper;
-use Slides\Saml2\Repositories\TenantRepository;
+use Slides\Saml2\Repositories\IdentityProviderRepository;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -28,29 +28,28 @@ class Update extends \Illuminate\Console\Command
                             { --relayStateUrl= : Redirection URL after successful login }
                             { --nameIdFormat= : Name ID Format ("persistent" by default) }
                             { --x509cert= : x509 certificate (base64) }
-                            { --metadata= : A custom metadata }
-    ';
+                            { --metadata= : A custom metadata }';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Update an Entity Provider';
+    protected $description = 'Update an existing Identity Provider';
 
     /**
-     * @var TenantRepository
+     * @var IdentityProviderRepository
      */
-    protected TenantRepository $tenants;
+    protected IdentityProviderRepository $repository;
 
     /**
      * DeleteTenant constructor.
      *
-     * @param TenantRepository $tenants
+     * @param IdentityProviderRepository $repository
      */
-    public function __construct(TenantRepository $tenants)
+    public function __construct(IdentityProviderRepository $repository)
     {
-        $this->tenants = $tenants;
+        $this->repository = $repository;
 
         parent::__construct();
     }
@@ -62,7 +61,7 @@ class Update extends \Illuminate\Console\Command
      */
     public function handle()
     {
-        $tenant = $this->tenants->findById($this->argument('id'));
+        $tenant = $this->repository->findById($this->argument('id'));
 
         $tenant->update(array_filter([
             'key' => $this->option('key'),
@@ -75,12 +74,12 @@ class Update extends \Illuminate\Console\Command
             'metadata' => ConsoleHelper::stringToArray($this->option('metadata'))
         ]));
 
-        if(!$tenant->save()) {
-            $this->error('Tenant cannot be saved.');
+        if (!$tenant->save()) {
+            $this->error('Identity Provider cannot be saved.');
             return;
         }
 
-        $this->info("The tenant #{$tenant->id} ({$tenant->uuid}) was successfully updated.");
+        $this->info("The tenant #$tenant->id ($tenant->uuid) was successfully updated.");
 
         $this->renderTenantCredentials($tenant);
 
@@ -100,7 +99,7 @@ class Update extends \Illuminate\Console\Command
         }
 
         if (! $input->getOption('loginUrl')) {
-            $input->setOption('loginUrl', $this->ask('Login ID (fx. https://login.microsoftonline.com/65b9e948-757b-4431-b140-62a2f8a3fdeb/saml2)'));
+            $input->setOption('loginUrl', $this->ask('Login URL (fx. https://login.microsoftonline.com/65b9e948-757b-4431-b140-62a2f8a3fdeb/saml2)'));
         }
 
         if (! $input->getOption('logoutUrl')) {
@@ -132,8 +131,8 @@ class Update extends \Illuminate\Console\Command
     protected function rules(): array
     {
         return [
-            'id' => ['required', 'int', new Exists(config('saml2.tenantModel'))],
-            'key' => ['string', new Unique(config('saml2.tenantModel'), 'key')],
+            'id' => ['required', 'int', new Exists(config('saml2.idpModel'))],
+            'key' => ['string', new Unique(config('saml2.idpModel'), 'key')],
             'entityId' => 'string',
             'loginUrl' => 'string|url',
             'logoutUrl' => 'string|url',

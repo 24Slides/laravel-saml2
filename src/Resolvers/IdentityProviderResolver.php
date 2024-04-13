@@ -4,23 +4,23 @@ namespace Slides\Saml2\Resolvers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use Slides\Saml2\Contracts\IdentityProvider;
+use Slides\Saml2\Contracts\IdentityProvidable;
 use Slides\Saml2\Contracts\ResolvesIdentityProvider;
-use Slides\Saml2\Repositories\TenantRepository;
+use Slides\Saml2\Repositories\IdentityProviderRepository;
 
 class IdentityProviderResolver implements ResolvesIdentityProvider
 {
     /**
-     * @var TenantRepository
+     * @var IdentityProviderRepository
      */
-    protected TenantRepository $tenants;
+    protected IdentityProviderRepository $repository;
 
     /**
-     * @param TenantRepository $tenants
+     * @param IdentityProviderRepository $repository
      */
-    public function __construct(TenantRepository $tenants)
+    public function __construct(IdentityProviderRepository $repository)
     {
-        $this->tenants = $tenants;
+        $this->repository = $repository;
     }
 
     /**
@@ -28,13 +28,13 @@ class IdentityProviderResolver implements ResolvesIdentityProvider
      *
      * @param Request $request
      *
-     * @return IdentityProvider|null
+     * @return IdentityProvidable|null
      */
-    public function resolve($request): ?IdentityProvider
+    public function resolve(Request $request): ?IdentityProvidable
     {
         if (!$uuid = $request->route('uuid')) {
             if (config('saml2.debug')) {
-                Log::debug('[Saml2] Tenant UUID is not present in the URL so cannot be resolved', [
+                Log::debug('[Saml2] Identity Provider UUID is not present in the URL so cannot be resolved', [
                     'url' => $request->fullUrl()
                 ]);
             }
@@ -42,11 +42,9 @@ class IdentityProviderResolver implements ResolvesIdentityProvider
             return null;
         }
 
-        if (!$idp = $this->tenants->findByUUID($uuid)) {
+        if (!$idp = $this->repository->findByUUID($uuid)) {
             if (config('saml2.debug')) {
-                Log::debug('[Saml2] Tenant doesn\'t exist', [
-                    'uuid' => $uuid
-                ]);
+                Log::debug('[Saml2] Identity Provider cannot be found', ['uuid' => $uuid]);
             }
 
             return null;
@@ -54,7 +52,7 @@ class IdentityProviderResolver implements ResolvesIdentityProvider
 
         if ($idp->trashed()) {
             if (config('saml2.debug')) {
-                Log::debug('[Saml2] Tenant #' . $idp->id. ' resolved but marked as deleted', [
+                Log::debug("[Saml2] Identity Provider #{$idp->id} resolved but marked as deleted", [
                     'id' => $idp->id,
                     'uuid' => $uuid,
                     'deleted_at' => $idp->deleted_at->toDateTimeString()

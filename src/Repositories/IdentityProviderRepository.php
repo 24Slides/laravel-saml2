@@ -2,9 +2,9 @@
 
 namespace Slides\Saml2\Repositories;
 
-use Slides\Saml2\Models\Tenant;
+use Slides\Saml2\Models\IdentityProvider;
 
-class TenantRepository
+class IdentityProviderRepository
 {
     /**
      * Create a new query.
@@ -15,10 +15,10 @@ class TenantRepository
      */
     public function query(bool $withTrashed = false)
     {
-        $class = config('saml2.tenantModel', Tenant::class);
+        $class = config('saml2.idpModel', IdentityProvider::class);
         $query = $class::query();
 
-        if($withTrashed) {
+        if ($withTrashed) {
             $query->withTrashed();
         }
 
@@ -30,7 +30,7 @@ class TenantRepository
      *
      * @param bool $withTrashed Whether need to include safely deleted records.
      *
-     * @return Tenant[]|\Illuminate\Database\Eloquent\Collection
+     * @return IdentityProvider[]|\Illuminate\Database\Eloquent\Collection
      */
     public function all(bool $withTrashed = true)
     {
@@ -43,7 +43,7 @@ class TenantRepository
      * @param int|string $key ID, key or UUID
      * @param bool $withTrashed Whether need to include safely deleted records.
      *
-     * @return Tenant[]|\Illuminate\Database\Eloquent\Collection
+     * @return IdentityProvider[]|\Illuminate\Database\Eloquent\Collection
      */
     public function findByAnyIdentifier($key, bool $withTrashed = true)
     {
@@ -64,7 +64,7 @@ class TenantRepository
      * @param string $key
      * @param bool $withTrashed
      *
-     * @return Tenant|\Illuminate\Database\Eloquent\Model|null
+     * @return IdentityProvider|\Illuminate\Database\Eloquent\Model|null
      */
     public function findByKey(string $key, bool $withTrashed = true)
     {
@@ -79,7 +79,7 @@ class TenantRepository
      * @param int $id
      * @param bool $withTrashed
      *
-     * @return Tenant|\Illuminate\Database\Eloquent\Model|null
+     * @return IdentityProvider|\Illuminate\Database\Eloquent\Model|null
      */
     public function findById(int $id, bool $withTrashed = true)
     {
@@ -94,7 +94,7 @@ class TenantRepository
      * @param int $uuid
      * @param bool $withTrashed
      *
-     * @return Tenant|\Illuminate\Database\Eloquent\Model|null
+     * @return IdentityProvider|\Illuminate\Database\Eloquent\Model|null
      */
     public function findByUUID(string $uuid, bool $withTrashed = true)
     {

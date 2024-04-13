@@ -3,7 +3,7 @@
 namespace Slides\Saml2;
 
 use OneLogin\Saml2\Auth as OneLoginAuth;
-use Slides\Saml2\Contracts\IdentityProvider;
+use Slides\Saml2\Contracts\IdentityProvidable;
 
 class Saml2User
 {
@@ -17,7 +17,7 @@ class Saml2User
     /**
      * The tenant user belongs to.
      *
-     * @var IdentityProvider
+     * @var IdentityProvidable
      */
     protected $idp;
 
@@ -25,9 +25,9 @@ class Saml2User
      * Saml2User constructor.
      *
      * @param OneLoginAuth $auth
-     * @param IdentityProvider $idp
+     * @param IdentityProvidable $idp
      */
-    public function __construct(OneLoginAuth $auth, IdentityProvider $idp)
+    public function __construct(OneLoginAuth $auth, IdentityProvidable $idp)
     {
         $this->auth = $auth;
         $this->idp = $idp;
@@ -161,11 +161,11 @@ class Saml2User
     /**
      * Set a tenant
      *
-     * @param IdentityProvider $idp
+     * @param IdentityProvidable $idp
      *
      * @return void
      */
-    public function setIdp(IdentityProvider $idp)
+    public function setIdp(IdentityProvidable $idp)
     {
         $this->idp = $idp;
     }
@@ -173,7 +173,7 @@ class Saml2User
     /**
      * Get a resolved tenant.
      *
-     * @return IdentityProvider|null
+     * @return IdentityProvidable|null
      */
     public function getIdp()
     {

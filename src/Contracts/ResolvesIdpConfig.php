@@ -7,10 +7,10 @@ interface ResolvesIdpConfig
     /**
      * Adjust SAML configuration for the given identity provider.
      *
-     * @param IdentityProvider $idp
+     * @param IdentityProvidable $idp
      * @param array $config
      *
      * @return void
      */
-    public function resolve(IdentityProvider $idp, array $config): array;
+    public function resolve(IdentityProvidable $idp, array $config): array;
 }

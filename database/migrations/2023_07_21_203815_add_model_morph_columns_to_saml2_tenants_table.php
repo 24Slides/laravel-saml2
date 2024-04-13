@@ -13,8 +13,10 @@ class AddModelMorphColumnsToSaml2TenantsTable extends Migration
      */
     public function up()
     {
-        Schema::table('saml2_tenants', function (Blueprint $table) {
-            $table->nullableMorphs('authenticatable');
+        Schema::rename('saml2_tenants', 'saml2_identity_providers');
+
+        Schema::table('saml2_identity_providers', function (Blueprint $table) {
+            $table->nullableMorphs('tenant');
         });
     }
 
@@ -25,8 +27,10 @@ class AddModelMorphColumnsToSaml2TenantsTable extends Migration
      */
     public function down()
     {
-        Schema::table('saml2_tenants', function (Blueprint $table) {
-            $table->dropMorphs('authenticatable');
+        Schema::table('saml2_identity_providers', function (Blueprint $table) {
+            $table->dropMorphs('tenant');
         });
+
+        Schema::rename('saml2_identity_providers', 'saml2_tenants');
     }
 }

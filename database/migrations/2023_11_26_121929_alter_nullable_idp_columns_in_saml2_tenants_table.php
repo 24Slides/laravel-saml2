@@ -13,7 +13,7 @@ class AlterNullableIdpColumnsInSaml2TenantsTable extends Migration
      */
     public function up()
     {
-        Schema::table('saml2_tenants', function (Blueprint $table) {
+        Schema::table('saml2_identity_providers', function (Blueprint $table) {
             $table->string('idp_entity_id')->nullable()->change();
             $table->string('idp_login_url')->nullable()->change();
             $table->string('idp_logout_url')->nullable()->change();
@@ -29,7 +29,7 @@ class AlterNullableIdpColumnsInSaml2TenantsTable extends Migration
      */
     public function down()
     {
-        Schema::table('saml2_tenants', function (Blueprint $table) {
+        Schema::table('saml2_identity_providers', function (Blueprint $table) {
             $table->string('idp_entity_id')->nullable(false)->change();
             $table->string('idp_login_url')->nullable(false)->change();
             $table->string('idp_logout_url')->nullable(false)->change();
