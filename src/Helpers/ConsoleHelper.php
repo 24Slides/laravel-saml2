@@ -4,11 +4,6 @@ namespace Slides\Saml2\Helpers;
 
 use Illuminate\Support\Arr;
 
-/**
- * Class ConsoleHelper
- *
- * @package App\Helpers
- */
 class ConsoleHelper
 {
     /**
@@ -24,7 +19,7 @@ class ConsoleHelper
      */
     public static function stringToArray(string $string = null, string $valueDelimiter = ':', string $itemDelimiter = ',')
     {
-        if(is_null($string)) {
+        if (is_null($string)) {
             return [];
         }
 
@@ -37,7 +32,7 @@ class ConsoleHelper
             $key = Arr::get($item, 0);
             $value = Arr::get($item, 1);
 
-            if(is_null($value)) {
+            if (is_null($value)) {
                 $value = $key;
                 $key = $index;
             }

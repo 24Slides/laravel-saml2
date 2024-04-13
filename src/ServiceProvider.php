@@ -2,11 +2,6 @@
 
 namespace Slides\Saml2;
 
-/**
- * Class ServiceProvider
- *
- * @package Slides\Saml2
- */
 class ServiceProvider extends \Illuminate\Support\ServiceProvider
 {
     /**
@@ -14,7 +9,27 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
      *
      * @var bool
      */
-    protected $defer = false;
+    protected bool $defer = false;
+
+    /**
+     * Register any application services.
+     *
+     * @return void
+     */
+    public function register()
+    {
+        $this->mergeConfigFrom(__DIR__ . '/../config/saml2.php', 'saml2');
+
+        $this->app->bind(\Slides\Saml2\Contracts\IdentityProvidable::class, config('saml2.tenantModel'));
+        $this->app->bind(\Slides\Saml2\Contracts\ResolvesIdentityProvider::class, config('saml2.resolvers.idp'));
+        $this->app->bind(\Slides\Saml2\Contracts\ResolvesIdpConfig::class, config('saml2.resolvers.config'));
+
+        if (config('saml2.auth.enabled')) {
+            $this->app->bind(\Slides\Saml2\Contracts\ResolvesUser::class, config('saml2.auth.resolver'));
+        }
+
+        $this->app->register(EventServiceProvider::class);
+    }
 
     /**
      * Bootstrap the application events.
@@ -23,9 +38,9 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
      */
     public function boot()
     {
+        $this->bootPublishes();
         $this->bootMiddleware();
         $this->bootRoutes();
-        $this->bootPublishes();
         $this->bootCommands();
         $this->loadMigrations();
     }
@@ -37,7 +52,7 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
      */
     protected function bootRoutes()
     {
-        if($this->app['config']['saml2.useRoutes'] == true) {
+        if ($this->app['config']['saml2.useRoutes']) {
             include __DIR__ . '/Http/routes.php';
         }
     }
@@ -49,10 +64,7 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
      */
     protected function bootPublishes()
     {
-        $source = __DIR__ . '/../config/saml2.php';
-
-        $this->publishes([$source => config_path('saml2.php')]);
-        $this->mergeConfigFrom($source, 'saml2');
+        $this->publishes([__DIR__ . '/../config/saml2.php' => config_path('saml2.php')]);
     }
 
     /**
@@ -63,12 +75,13 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
     protected function bootCommands()
     {
         $this->commands([
-            \Slides\Saml2\Commands\CreateTenant::class,
-            \Slides\Saml2\Commands\UpdateTenant::class,
-            \Slides\Saml2\Commands\DeleteTenant::class,
-            \Slides\Saml2\Commands\RestoreTenant::class,
-            \Slides\Saml2\Commands\ListTenants::class,
-            \Slides\Saml2\Commands\TenantCredentials::class
+            \Slides\Saml2\Commands\Create::class,
+            \Slides\Saml2\Commands\Update::class,
+            \Slides\Saml2\Commands\ListAll::class,
+//            \Slides\Saml2\Commands\DeleteTenant::class,
+//            \Slides\Saml2\Commands\RestoreTenant::class,
+//            \Slides\Saml2\Commands\ListTenants::class,
+//            \Slides\Saml2\Commands\TenantCredentials::class
         ]);
     }
 
@@ -77,9 +90,9 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
      *
      * @return void
      */
-    protected function bootMiddleware()
+    protected function bootMiddleware(): void
     {
-        $this->app['router']->aliasMiddleware('saml2.resolveTenant', \Slides\Saml2\Http\Middleware\ResolveTenant::class);
+        $this->app['router']->aliasMiddleware('saml2.resolveIdentityProvider', \Slides\Saml2\Http\Middleware\ResolveIdentityProvider::class);
     }
 
     /**
@@ -87,7 +100,7 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
      *
      * @return void
      */
-    protected function loadMigrations()
+    protected function loadMigrations(): void
     {
         if (config('saml2.load_migrations', true)) {
             $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
@@ -99,7 +112,7 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
      *
      * @return array
      */
-    public function provides()
+    public function provides(): array
     {
         return [];
     }

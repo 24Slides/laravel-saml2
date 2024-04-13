@@ -13,8 +13,8 @@ This package turns your application into Service Provider with the support of mu
 
 ## Requirements
 
-- Laravel 5.4+
-- PHP 7.0+
+- Laravel 8.0+
+- PHP 7.4+
 
 ## Getting Started
 
@@ -24,22 +24,6 @@ This package turns your application into Service Provider with the support of mu
 
 ```
 composer require 24slides/laravel-saml2
-```
-
-If you are using Laravel 5.5 and higher, the service provider will be automatically registered.
-
-For older versions, you have to add the service provider and alias to your `config/app.php`:
-
-```php
-'providers' => [
-    ...
-    Slides\Saml2\ServiceProvider::class,
-]
-
-'alias' => [
-    ...
-    'Saml2' => Slides\Saml2\Facades\Auth::class,
-]
 ```
 
 ##### Step 2. Publish the configuration file.
@@ -66,24 +50,43 @@ When request comes to an application, the middleware parses UUID and resolves th
 
 You can easily manage tenants using the following console commands:
 
-- `artisan saml2:create-tenant`
-- `artisan saml2:update-tenant`
-- `artisan saml2:delete-tenant`
-- `artisan saml2:restore-tenant`
-- `artisan saml2:list-tenants`
-- `artisan saml2:tenant-credentials`
+- `artisan saml2:idp-create`
+- `artisan saml2:idp-update`
+- `artisan saml2:idp-delete`
+- `artisan saml2:idp-restore`
+- `artisan saml2:idp-list`
+- `artisan saml2:idp-get`
 
 > To learn their options, run a command with `-h` parameter.
 
 Each Tenant has the following attributes:
 
-- **UUID** — a unique identifier that allows to resolve a tenannt and configure SP correspondingly
+- **UUID** — a unique identifier that allows to resolve an Identity Provider and configure SP correspondingly
+- **Tenant** — an optional morph relation to your custom model that binds IdP with your application entity (fx. user, organisation, etc.)
 - **Key** — a custom key to use for application needs
 - **Entity ID** — [Identity Provider Entity ID](https://spaces.at.internet2.edu/display/InCFederation/Entity+IDs)
 - **Login URL** — Identity Provider Single Sign On URL
 - **Logout URL** — Identity Provider Logout URL
 - **x509 certificate** — The certificate provided by Identity Provider in **base64** format
 - **Metadata** — Custom parameters for your application needs
+
+```php
+use \Slides\Saml2\Concerns\IdentityProviderAuthenticatable;
+
+class Organization extends \Illuminate\Database\Eloquent\Model
+{
+    use IdentityProviderAuthenticatable;
+}
+
+$organization->identityProvider->loginUrl();
+$organization->identityProvider->sessions();
+
+Saml2::withIdentityProvider($organization->identityProvider)
+    ->route('custom.route');
+
+Saml2::withIdentityProvider($organization->identityProvider)
+    ->url('custom.route');
+```
 
 #### Default routes
 
@@ -283,7 +286,7 @@ If you discover any security related issues, please email **brezzhnev@gmail.com*
 ## Credits
 
 - [aacotroneo][link-original-author]
-- [brezzhnev][link-author]
+- [breart][link-author]
 - [All Contributors][link-contributors]
 
 ## License

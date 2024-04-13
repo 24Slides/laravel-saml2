@@ -2,17 +2,13 @@
 
 namespace Slides\Saml2\Http\Controllers;
 
+use Illuminate\Support\Facades\Log;
 use Slides\Saml2\Events\SignedIn;
 use Slides\Saml2\Auth;
 use Illuminate\Routing\Controller;
 use Illuminate\Http\Request;
 use OneLogin\Saml2\Error as OneLoginError;
 
-/**
- * Class Saml2Controller
- *
- * @package Slides\Saml2\Http\Controllers
- */
 class Saml2Controller extends Controller
 {
     /**
@@ -47,9 +43,9 @@ class Saml2Controller extends Controller
     {
         $errors = $auth->acs();
 
-        if (!empty($errors)) {
+        if ($errors) {
             $error = $auth->getLastErrorReason();
-            $uuid = $auth->getTenant()->uuid;
+            $uuid = $auth->getIdp()->uuid;
 
             logger()->error('saml2.error_detail', compact('uuid', 'error'));
             session()->flash('saml2.error_detail', [$error]);
@@ -62,6 +58,15 @@ class Saml2Controller extends Controller
 
         $user = $auth->getSaml2User();
 
+        if (config('saml2.debug')) {
+            Log::debug('[Saml2] Received login request from a user', [
+                'idpUuid' => $user->getIdp()->idpUuid(),
+                'userId' => $user->getUserId(),
+                'userAttributes' => $user->getAttributes(),
+                'intendedUrl' => $user->getIntendedUrl(),
+            ]);
+        }
+
         event(new SignedIn($user, $auth));
 
         $redirectUrl = $user->getIntendedUrl();
@@ -70,7 +75,7 @@ class Saml2Controller extends Controller
             return redirect($redirectUrl);
         }
 
-        return redirect($auth->getTenant()->relay_state_url ?: config('saml2.loginRoute'));
+        return redirect($auth->getIdp()->relay_state_url ?: config('saml2.loginRoute'));
     }
 
     /**
@@ -91,9 +96,9 @@ class Saml2Controller extends Controller
     {
         $errors = $auth->sls(config('saml2.retrieveParametersFromServer'));
 
-        if (!empty($errors)) {
+        if (count($errors)) {
             $error = $auth->getLastErrorReason();
-            $uuid = $auth->getTenant()->uuid;
+            $uuid = $auth->getIdp()->uuid;
 
             logger()->error('saml2.error_detail', compact('uuid', 'error'));
             session()->flash('saml2.error_detail', [$error]);
@@ -119,7 +124,7 @@ class Saml2Controller extends Controller
      */
     public function login(Request $request, Auth $auth)
     {
-        $redirectUrl = $auth->getTenant()->relay_state_url ?: config('saml2.loginRoute');
+        $redirectUrl = $auth->getIdp()->relay_state_url ?: config('saml2.loginRoute');
 
         $auth->login($request->query('returnTo', $redirectUrl));
     }

@@ -4,14 +4,48 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Tenant Model
+    | Identity Provider Model
     |--------------------------------------------------------------------------
     |
-    | This will allow you to override the tenant model with your own.
+    | This will allow you to override the Identity Provider model with your own.
     |
     */
 
-    'tenantModel' => \Slides\Saml2\Models\Tenant::class,
+    'idpModel' => \Slides\Saml2\Models\IdentityProvider::class,
+
+    /*
+    |--------------------------------------------------------------------------
+    | Classes that implement Identity Provider and config resolution logic.
+    |--------------------------------------------------------------------------
+    |
+    | Here you may customize the way Identity Provider gets resolved,
+    | as well as configuration adjustments of the SP once IdP is resolved.
+    |
+    */
+
+    'resolvers' => [
+        'idp' => \Slides\Saml2\Resolvers\IdentityProviderResolver::class,
+        'config' => \Slides\Saml2\Resolvers\ConfigResolver::class,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | User authentication settings.
+    |--------------------------------------------------------------------------
+    |
+    | Here you may specify the settings for default (basic) user authorization.
+    |
+    | You can extend this functionality by implementing your own user resolver.
+    | Or completely disable it and use Slides\Saml2\Events\SignedIn event instead.
+    |
+    */
+
+    'auth' => [
+        'enabled' => env('SAML2_AUTHORIZE_USER', true),
+        'resolver' => \Slides\Saml2\Resolvers\UserResolver::class,
+        'userModel' => \App\Models\User::class,
+        'createUser' => env('SAML2_CREATE_USER', true),
+    ],
 
     /*
     |--------------------------------------------------------------------------
@@ -170,7 +204,7 @@ return [
         |
         */
 
-        'x509cert' => env('SAML2_SP_CERT_x509',''),
+        'x509cert' => env('SAML2_SP_CERT_X509',''),
         'privateKey' => env('SAML2_SP_CERT_PRIVATEKEY',''),
 
         /*
@@ -393,5 +427,5 @@ return [
     | This will allow you to disable or enable the default migrations of the package.
     |
     */
-    'load_migrations' => true,
+    'loadMigrations' => true,
 ];
