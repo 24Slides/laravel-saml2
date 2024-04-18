@@ -2,11 +2,11 @@
 
 namespace Slides\Saml2\Http\Controllers;
 
-use Slides\Saml2\Events\SignedIn;
-use Slides\Saml2\Auth;
-use Illuminate\Routing\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controller;
 use OneLogin\Saml2\Error as OneLoginError;
+use Slides\Saml2\Auth;
+use Slides\Saml2\Events\SignedIn;
 
 /**
  * Class Saml2Controller
@@ -43,8 +43,10 @@ class Saml2Controller extends Controller
      * @throws OneLoginError
      * @throws \OneLogin\Saml2\ValidationError
      */
-    public function acs(Auth $auth)
+    public function acs(Auth $auth, $idpName, Request $request)
     {
+        $this->setRequest($request);
+
         $errors = $auth->acs();
 
         if (!empty($errors)) {
@@ -65,6 +67,8 @@ class Saml2Controller extends Controller
         event(new SignedIn($user, $auth));
 
         $redirectUrl = $user->getIntendedUrl();
+
+        $this->unsetRequest();
 
         if ($redirectUrl) {
             return redirect($redirectUrl);
@@ -87,9 +91,13 @@ class Saml2Controller extends Controller
      * @throws OneLoginError
      * @throws \Exception
      */
-    public function sls(Auth $auth)
+    public function sls(Auth $auth, $idpName, Request $request)
     {
+        $this->setRequest($request);
+
         $errors = $auth->sls(config('saml2.retrieveParametersFromServer'));
+
+        $this->unsetRequest();
 
         if (!empty($errors)) {
             $error = $auth->getLastErrorReason();
@@ -117,11 +125,23 @@ class Saml2Controller extends Controller
      *
      * @throws OneLoginError
      */
-    public function login(Request $request, Auth $auth)
+    public function login(Request $request, Auth $auth, $idpName)
     {
+        $this->setRequest($request);
+
         $redirectUrl = $auth->getTenant()->relay_state_url ?: config('saml2.loginRoute');
 
-        $auth->login($request->query('returnTo', $redirectUrl));
+        $redirectUrl = $auth->login(
+            $request->query('returnTo', $redirectUrl),
+            [],
+            false,
+            false,
+            true
+        );
+
+        $this->unsetRequest();
+
+        return redirect($redirectUrl);
     }
 
     /**
@@ -136,10 +156,70 @@ class Saml2Controller extends Controller
      */
     public function logout(Request $request, Auth $auth)
     {
-        $auth->logout(
+        $this->setRequest($request);
+
+        $redirectUrl = $auth->logout(
             $request->query('returnTo'),
             $request->query('nameId'),
-            $request->query('sessionIndex')
+            $request->query('sessionIndex'),
+            null,
+            true
+        );
+
+        $this->unsetRequest();
+
+        return redirect($redirectUrl);
+    }
+
+    /**
+     * Add needed superglobals for php-saml that swoole does not provide
+     *
+     * @param Request $request
+     *
+     * @return void
+     */
+    private function setRequest(Request $request)
+    {
+        $_POST['SAMLResponse'] = array_key_exists('SAMLResponse',
+            $request->post()) ? $request->post()['SAMLResponse'] : null;
+        $_GET['SAMLResponse'] = array_key_exists('SAMLResponse',
+            $request->query()) ? $request->query()['SAMLResponse'] : null;
+        $_GET['SAMLRequest'] = array_key_exists('SAMLRequest',
+            $request->query()) ? $request->query()['SAMLRequest'] : null;
+        $_GET['RelayState'] = array_key_exists('RelayState',
+            $request->query()) ? $request->query()['RelayState'] : null;
+        $_GET['Signature'] = array_key_exists('Signature', $request->query()) ? $request->query()['Signature'] : null;
+        $_REQUEST['RelayState'] = array_key_exists('RelayState',
+            $request->all()) ? $request->all()['RelayState'] : null;
+
+        if (! empty($request->server->get('HTTP_X_FORWARDED_PROTO'))) {
+            $_SERVER['HTTP_X_FORWARDED_PROTO'] = $request->server->get('HTTP_X_FORWARDED_PROTO');
+        }
+        if (! empty($request->server->get('HTTP_X_FORWARDED_HOST'))) {
+            $_SERVER['HTTP_X_FORWARDED_HOST'] = $request->server->get('HTTP_X_FORWARDED_HOST');
+        } else {
+            $_SERVER['HTTP_HOST'] = parse_url(config('app.url'), PHP_URL_HOST);
+        }
+    }
+
+    /**
+     * Remove superglobals that were needed for php-saml that swoole does not provide
+     *
+     *
+     * @return void
+     */
+    private function unsetRequest()
+    {
+        unset(
+            $_POST['SAMLResponse'],
+            $_GET['SAMLResponse'],
+            $_GET['SAMLRequest'],
+            $_GET['RelayState'],
+            $_GET['Signature'],
+            $_REQUEST['RelayState'],
+            $_SERVER['HTTP_X_FORWARDED_PROTO'],
+            $_SERVER['HTTP_X_FORWARDED_HOST'],
+            $_SERVER['HTTP_HOST'],
         );
     }
 }
