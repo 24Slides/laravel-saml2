@@ -1,5 +1,5 @@
 {
-    "name": "24slides/laravel-saml2",
+    "name": "pixelcat/laravel-saml2",
     "type": "library",
     "description": "SAML2 Service Provider integration to your Laravel 5.4+ application, based on OneLogin toolkit",
     "keywords": ["laravel", "saml", "saml2", "onelogin", "sso"],
