@@ -82,7 +82,7 @@ class CreateTenant extends \Illuminate\Console\Command
         }
 
         $key = $this->option('key');
-        $metadata = $metadata ? \json_encode($this->option('metadata')) : '';
+        $metadata = $metadata ? \json_encode($this->option('metadata')) : '[]';
 
         if($key && ($tenant = $this->tenants->findByKey($key))) {
             $this->renderTenants($tenant, 'Already found tenant(s) using this key');
