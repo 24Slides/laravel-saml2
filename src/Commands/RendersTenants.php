@@ -66,7 +66,7 @@ trait RendersTenants
             'Relay State URL' => $tenant->relay_state_url,
             'Name ID format' => $tenant->name_id_format,
             'x509 cert' => Str::limit($tenant->idp_x509_cert, 50),
-            'Metadata' => json_decode($tenant->metadata ?: []),
+            'Metadata' => print_r($tenant->metadata ?: [],1),
             'Created' => $tenant->created_at->toDateTimeString(),
             'Updated' => $tenant->updated_at->toDateTimeString(),
             'Deleted' => $tenant->deleted_at ? $tenant->deleted_at->toDateTimeString() : null

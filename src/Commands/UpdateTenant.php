@@ -67,7 +67,7 @@ class UpdateTenant extends \Illuminate\Console\Command
 
         if ($this->option('metadata')) {
             $metadata = $this->option('metadata') ? json_decode($this->option('metadata', '[]')) : null;
-            if ($json_error = json_last_error_msg()) {
+            if (($json_error = json_last_error_msg()) !== 'No error') {
                 $this->error($json_error);
                 return;
             }
