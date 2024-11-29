@@ -110,7 +110,7 @@ class Saml2Controller extends Controller
     /**
      * Initiate a login request.
      *
-     * @param Illuminate\Http\Request $request
+     * @param \Illuminate\Http\Request $request
      * @param Auth $auth
      *
      * @return void
@@ -127,7 +127,7 @@ class Saml2Controller extends Controller
     /**
      * Initiate a logout request.
      *
-     * @param Illuminate\Http\Request $request
+     * @param \Illuminate\Http\Request $request
      * @param Auth $auth
      *
      * @return void
