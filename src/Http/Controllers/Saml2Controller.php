@@ -49,9 +49,9 @@ class Saml2Controller extends Controller
 
         if (!empty($errors)) {
             $error = $auth->getLastErrorReason();
-            $uuid = $auth->getTenant()->uuid;
+            $key = $auth->getIdpKey();
 
-            logger()->error('saml2.error_detail', compact('uuid', 'error'));
+            logger()->error('saml2.error_detail', compact('key', 'error'));
             session()->flash('saml2.error_detail', [$error]);
 
             logger()->error('saml2.error', $errors);
@@ -70,7 +70,7 @@ class Saml2Controller extends Controller
             return redirect($redirectUrl);
         }
 
-        return redirect($auth->getTenant()->relay_state_url ?: config('saml2.loginRoute'));
+        return redirect($auth->getIdpRelayStateUrl() ?: config('saml2.loginRoute'));
     }
 
     /**
@@ -93,9 +93,9 @@ class Saml2Controller extends Controller
 
         if (!empty($errors)) {
             $error = $auth->getLastErrorReason();
-            $uuid = $auth->getTenant()->uuid;
+            $key = $auth->getIdpKey();
 
-            logger()->error('saml2.error_detail', compact('uuid', 'error'));
+            logger()->error('saml2.error_detail', compact('key', 'error'));
             session()->flash('saml2.error_detail', [$error]);
 
             logger()->error('saml2.error', $errors);
@@ -119,7 +119,7 @@ class Saml2Controller extends Controller
      */
     public function login(Request $request, Auth $auth)
     {
-        $redirectUrl = $auth->getTenant()->relay_state_url ?: config('saml2.loginRoute');
+        $redirectUrl = $auth->getIdpRelayStateUrl() ?: config('saml2.loginRoute');
 
         $auth->login($request->query('returnTo', $redirectUrl));
     }

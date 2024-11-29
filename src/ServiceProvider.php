@@ -26,8 +26,6 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
         $this->bootMiddleware();
         $this->bootRoutes();
         $this->bootPublishes();
-        $this->bootCommands();
-        $this->loadMigrations();
     }
 
     /**
@@ -60,47 +58,8 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
      *
      * @return void
      */
-    protected function bootCommands()
-    {
-        $this->commands([
-            \Slides\Saml2\Commands\CreateTenant::class,
-            \Slides\Saml2\Commands\UpdateTenant::class,
-            \Slides\Saml2\Commands\DeleteTenant::class,
-            \Slides\Saml2\Commands\RestoreTenant::class,
-            \Slides\Saml2\Commands\ListTenants::class,
-            \Slides\Saml2\Commands\TenantCredentials::class
-        ]);
-    }
-
-    /**
-     * Bootstrap the console commands.
-     *
-     * @return void
-     */
     protected function bootMiddleware()
     {
-        $this->app['router']->aliasMiddleware('saml2.resolveTenant', \Slides\Saml2\Http\Middleware\ResolveTenant::class);
-    }
-
-    /**
-     * Load the package migrations.
-     *
-     * @return void
-     */
-    protected function loadMigrations()
-    {
-        if (config('saml2.load_migrations', true)) {
-            $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
-        }
-    }
-
-    /**
-     * Get the services provided by the provider.
-     *
-     * @return array
-     */
-    public function provides()
-    {
-        return [];
+        $this->app['router']->aliasMiddleware('saml2.resolveIdp', \Slides\Saml2\Http\Middleware\ResolveIdp::class);
     }
 }

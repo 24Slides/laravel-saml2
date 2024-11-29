@@ -5,7 +5,6 @@ namespace Slides\Saml2;
 use OneLogin\Saml2\Auth as OneLoginAuth;
 use OneLogin\Saml2\Error as OneLoginError;
 use Slides\Saml2\Events\SignedOut;
-use Slides\Saml2\Models\Tenant;
 
 /**
  * Class Auth
@@ -22,22 +21,22 @@ class Auth
     protected $base;
 
     /**
-     * The resolved tenant.
+     * The resolved IdP configuration.
      *
-     * @var Tenant
+     * @var array
      */
-    protected $tenant;
+    protected $idp;
 
     /**
      * Auth constructor.
      *
      * @param OneLoginAuth $auth
-     * @param Tenant $tenant
+     * @param array $idp
      */
-    public function __construct(OneLoginAuth $auth, Tenant $tenant)
+    public function __construct(OneLoginAuth $auth, array $idp)
     {
         $this->base = $auth;
-        $this->tenant = $tenant;
+        $this->idp = $idp;
     }
 
     /**
@@ -57,7 +56,7 @@ class Auth
      */
     public function getSaml2User()
     {
-        return new Saml2User($this->base, $this->tenant);
+        return new Saml2User($this->base);
     }
 
     /**
@@ -223,24 +222,22 @@ class Auth
     }
 
     /**
-     * Set a tenant
+     * Get IDP key.
      *
-     * @param Tenant $tenant
-     *
-     * @return void
+     * @return string
      */
-    public function setTenant(Tenant $tenant)
+    public function getIdpKey()
     {
-        $this->tenant = $tenant;
+        return $this->idp['key'];
     }
 
     /**
-     * Get a resolved tenant.
+     * Get IDP relay state URL, if configured.
      *
-     * @return Tenant|null
+     * @return string|null
      */
-    public function getTenant()
+    public function getIdpRelayStateUrl()
     {
-        return $this->tenant;
+        return $this->idp['relay_state_url'] ?? null;
     }
 }

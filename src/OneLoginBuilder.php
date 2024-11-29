@@ -6,7 +6,6 @@ use OneLogin\Saml2\Auth as OneLoginAuth;
 use OneLogin\Saml2\Utils as OneLoginUtils;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Contracts\Container\Container;
-use Slides\Saml2\Models\Tenant;
 use Illuminate\Support\Arr;
 
 /**
@@ -22,11 +21,13 @@ class OneLoginBuilder
     protected $app;
 
     /**
-     * The resolved tenant.
+     * IdP configuration.
      *
-     * @var Tenant
+     * @var array
+     *
+     * @see https://github.com/SAML-Toolkits/php-saml#settings
      */
-    protected $tenant;
+    protected $idp;
 
     /**
      * OneLoginBuilder constructor.
@@ -39,23 +40,21 @@ class OneLoginBuilder
     }
 
     /**
-     * Set a tenant.
+     * Set IdP configuration.
      *
-     * @param Tenant $tenant
+     * @param array $idp
      *
      * @return $this
      */
-    public function withTenant(Tenant $tenant)
+    public function withIdp(array $idp)
     {
-        $this->tenant = $tenant;
+        $this->idp = $idp;
 
         return $this;
     }
 
     /**
      * Bootstrap the OneLogin toolkit.
-     *
-     * @param Tenant $tenant
      *
      * @return void
      */
@@ -67,24 +66,22 @@ class OneLoginBuilder
 
         $this->app->singleton('OneLogin_Saml2_Auth', function ($app) {
             $config = $app['config']['saml2'];
-
+            // Supply only what is needed.
+            unset($config['idps']);
             $this->setConfigDefaultValues($config);
 
             $oneLoginConfig = $config;
-            $oneLoginConfig['idp'] = [
-                'entityId' => $this->tenant->idp_entity_id,
-                'singleSignOnService' => ['url' => $this->tenant->idp_login_url],
-                'singleLogoutService' => ['url' => $this->tenant->idp_logout_url],
-                'x509cert' => $this->tenant->idp_x509_cert
-            ];
+            $oneLoginConfig['idp'] = $this->idp;
 
-            $oneLoginConfig['sp']['NameIDFormat'] = $this->resolveNameIdFormatPrefix($this->tenant->name_id_format);
+            if ($config['sp']['NameIDFormatFromIdp']) {
+                $oneLoginConfig['sp']['NameIDFormat'] = $oneLoginConfig['idp']['NameIDFormat'];
+            }
 
             return new OneLoginAuth($oneLoginConfig);
         });
 
         $this->app->singleton('Slides\Saml2\Auth', function ($app) {
-            return new \Slides\Saml2\Auth($app['OneLogin_Saml2_Auth'], $this->tenant);
+            return new \Slides\Saml2\Auth($app['OneLogin_Saml2_Auth'], $this->idp);
         });
     }
 
@@ -112,29 +109,9 @@ class OneLoginBuilder
     protected function configDefaultValues()
     {
         return [
-            'sp.entityId' => URL::route('saml.metadata', ['uuid' => $this->tenant->uuid]),
-            'sp.assertionConsumerService.url' => URL::route('saml.acs', ['uuid' => $this->tenant->uuid]),
-            'sp.singleLogoutService.url' => URL::route('saml.sls', ['uuid' => $this->tenant->uuid])
+            'sp.entityId' => URL::route('saml.metadata', ['key' => $this->idp['key']]),
+            'sp.assertionConsumerService.url' => URL::route('saml.acs', ['key' => $this->idp['key']]),
+            'sp.singleLogoutService.url' => URL::route('saml.sls', ['key' => $this->idp['key']])
         ];
-    }
-
-    /**
-     * Resolve the Name ID Format prefix.
-     *
-     * @param string $format
-     *
-     * @return string
-     */
-    protected function resolveNameIdFormatPrefix(string $format): string
-    {
-        switch ($format) {
-            case 'emailAddress':
-            case 'X509SubjectName':
-            case 'WindowsDomainQualifiedName':
-            case 'unspecified':
-                return 'urn:oasis:names:tc:SAML:1.1:nameid-format:' . $format;
-            default:
-                return 'urn:oasis:names:tc:SAML:2.0:nameid-format:'. $format;
-        }
     }
 }

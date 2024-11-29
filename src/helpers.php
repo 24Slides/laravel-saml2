@@ -3,63 +3,63 @@
 if (!function_exists('saml_url'))
 {
     /**
-     * Generate a URL to saml/{uuid}/login which redirects to a target URL.
+     * Generate a URL to saml/{key}/login which redirects to a target URL.
      *
      * @param string $path
-     * @param string|null $uuid A tenant UUID.
+     * @param string|null $key An IdP key.
      * @param array $parameters
      * @param bool $secure
      *
      * @return string
      */
-    function saml_url(string $path, string $uuid = null, $parameters = [], bool $secure = null)
+    function saml_url(string $path, string $key = null, array $parameters = [], bool $secure = null)
     {
         $target = \Illuminate\Support\Facades\URL::to($path, $parameters, $secure);
 
-        if(!$uuid) {
-            if(!$uuid = saml_tenant_uuid()) {
+        if(!$key) {
+            if(!$key = saml_idp_key()) {
                 return $target;
             }
         }
 
-        return \Illuminate\Support\Facades\URL::route('saml.login', ['uuid' => $uuid, 'returnTo' => $target]);
+        return \Illuminate\Support\Facades\URL::route('saml.login', ['key' => $key, 'returnTo' => $target]);
     }
 }
 
 if (!function_exists('saml_route'))
 {
     /**
-     * Generate a URL to saml/{uuid}/login which redirects to a target route.
+     * Generate a URL to saml/{key}/login which redirects to a target route.
      *
      * @param string $name
-     * @param string|null $uuid A tenant UUID.
+     * @param string|null $key An IdP key.
      * @param array $parameters
      *
      * @return string
      */
-    function saml_route(string $name, string $uuid = null, $parameters = [])
+    function saml_route(string $name, string $key = null, array $parameters = [])
     {
         $target = \Illuminate\Support\Facades\URL::route($name, $parameters, true);
 
-        if(!$uuid) {
-            if(!$uuid = saml_tenant_uuid()) {
+        if(!$key) {
+            if(!$key = saml_idp_key()) {
                 return $target;
             }
         }
 
-        return \Illuminate\Support\Facades\URL::route('saml.login', ['uuid' => $uuid, 'returnTo' => $target]);
+        return \Illuminate\Support\Facades\URL::route('saml.login', ['key' => $key, 'returnTo' => $target]);
     }
 }
 
-if (!function_exists('saml_tenant_uuid'))
+if (!function_exists('saml_idp_key'))
 {
     /**
-     * Get a resolved Tenant UUID based on current URL.
+     * Get a resolved IdP key based on the current URL.
      *
      * @return string|null
      */
-    function saml_tenant_uuid()
+    function saml_idp_key()
     {
-        return session()->get('saml2.tenant.uuid');
+        return session()->get('saml2.idp.key');
     }
 }

@@ -7,7 +7,7 @@
 [![Code Coverage][ico-code-coverage]][link-code-coverage]
 [![Total Downloads][ico-downloads]][link-downloads]
 
-An integration to add SSO to your service via SAML2 protocol based on [OneLogin](https://github.com/onelogin/php-saml) toolkit. 
+An integration to add SSO to your service via SAML2 protocol based on [SAML PHP Toolkit] toolkit. 
 
 This package turns your application into Service Provider with the support of multiple Identity Providers.
 
@@ -48,52 +48,30 @@ For older versions, you have to add the service provider and alias to your `conf
 php artisan vendor:publish --provider="Slides\Saml2\ServiceProvider"
 ```
 
-##### Step 3. Run migrations
-
-```
-php artisan migrate
-```
 
 ### Configuring
 
-Once you publish `saml2.php` to `app/config`, you need to configure your SP. Most of options are inherited from [OneLogin Toolkit](https://github.com/onelogin/php-saml), so you can check documentation there.
+Once you publish `saml2.php` to `app/config`, you need to configure your service provider (SP). 
+Most of the options are inherited from [SAML PHP Toolkit], so you can check documentation there.
+This relates to identity providers (IdPs) as well.
 
-#### Identity Providers (IdPs)
 
-To distinguish between identity providers there is an entity called Tenant that represent each IdP.
 
-When request comes to an application, the middleware parses UUID and resolves the Tenant.
+#### Identity Providers
 
-You can easily manage tenants using the following console commands:
+Identity providers (IdPs) are configured in the same `saml2.php` configuration file under `idps` key.
+**N.B.** That it is plural (`idp**S**`), unlike in [SAML PHP Toolkit], because we support multiple IdPs.
 
-- `artisan saml2:create-tenant`
-- `artisan saml2:update-tenant`
-- `artisan saml2:delete-tenant`
-- `artisan saml2:restore-tenant`
-- `artisan saml2:list-tenants`
-- `artisan saml2:tenant-credentials`
-
-> To learn their options, run a command with `-h` parameter.
-
-Each Tenant has the following attributes:
-
-- **UUID** — a unique identifier that allows to resolve a tenannt and configure SP correspondingly
-- **Key** — a custom key to use for application needs
-- **Entity ID** — [Identity Provider Entity ID](https://spaces.at.internet2.edu/display/InCFederation/Entity+IDs)
-- **Login URL** — Identity Provider Single Sign On URL
-- **Logout URL** — Identity Provider Logout URL
-- **x509 certificate** — The certificate provided by Identity Provider in **base64** format
-- **Metadata** — Custom parameters for your application needs
 
 #### Default routes
 
 The following routes are registered by default:
 
-- `GET saml2/{uuid}/login`
-- `GET saml2/{uuid}/logout`
-- `GET saml2/{uuid}/metadata`
-- `POST saml2/{uuid}/acs`
-- `POST saml2/{uuid}/sls`
+- `GET saml2/{key}/login`
+- `GET saml2/{key}/logout`
+- `GET saml2/{key}/metadata`
+- `POST saml2/{key}/acs`
+- `POST saml2/{key}/sls`
 
 You may disable them by setting `saml2.useRoutes` to `false`.
 
@@ -163,7 +141,7 @@ protected $middlewareGroups = [
 
 There are two ways the user can logout:
 - By logging out in your app. In this case you SHOULD notify the IdP first so it'll close the global session.
-- By logging out of the global SSO Session. In this case the IdP will notify you on `/saml2/{uuid}/slo` endpoint (already provided).
+- By logging out of the global SSO Session. In this case the IdP will notify you on `/saml2/{key}/sls` endpoint (already provided).
 
 For the first case, call `Saml2Auth::logout();` or redirect the user to the route `saml.logout` which does just that. 
 Do not close the session immediately as you need to receive a response confirmation from the IdP (redirection). 
@@ -171,7 +149,7 @@ That response will be handled by the library at `/saml2/sls` and will fire an ev
 
 For the second case you will only receive the event. Both cases receive the same event. 
 
-Note that for the second case, you may have to manually save your session to make the logout stick (as the session is saved by middleware, but the OneLogin library will redirect back to your IdP before that happens):
+Note that for the second case, you may have to manually save your session to make the logout stick (as the session is saved by middleware, but the [SAML PHP Toolkit] library will redirect back to your IdP before that happens):
 
 ```php
 Event::listen('Slides\Saml2\Events\SignedOut', function (SignedOut $event) {
@@ -184,17 +162,17 @@ Event::listen('Slides\Saml2\Events\SignedOut', function (SignedOut $event) {
 
 Sometimes, you need to create links to your application with support of SSO lifecycle. It means you expect a user to be signed in once you click on that link.
 
-The most popular example is generating links from emails, where you need to make sure when user goes to your application from email, he will be logged in.
-To solve this issue, you can use helpers that allow you create SSO-friendly routes and URLs — `saml_url()` and `saml_route()`.
+The most popular example is generating links from emails, where you need to make sure when user goes to your application from email, they will be logged in.
+To solve this issue, you can use helpers that allow you to create SSO-friendly routes and URLs — `saml_url()` and `saml_route()`.
 
-To generate a link, you need to call one of functions and pass UUID of the tenant as a second parameter, unless your session knows that user was resolved by SSO.
-
-> To retrieve UUID based on user, you should implement logic that links your internal user to a tenant.
+To generate a link, you need to call one of functions and pass the IdP key as a second parameter, unless your session knows that user was resolved by SSO.
 
 Then, it generates a link like this:
 ```
-https://yourdomain/saml/63fffdd1-f416-4bed-b3db-967b6a56896b/login?returnTo=https://yourdomain.com/your/actual/link
+https://yourdomain/saml2/default/login?returnTo=https://yourdomain.com/your/actual/link
 ```
+
+where `default` is the IdP key from the `saml2.php` configuration file. 
 
 Basically, when user clicks on a link, it initiates SSO login process and redirects it back to your needed URL. 
 
@@ -215,40 +193,55 @@ You need to retrieve the following parameters:
 - Logout URL
 - Certificate (Base64)
 
-##### Step 2. Create a Tenant
+##### Step 2. Configure Identity Provider
 
-Based on information you received below, create a Tenant, like this:
+Based on information you received in step one, configure your IdP like this:
 
+```shell
+cat config/saml2.php
+...
+
+    'idps' => [
+        // The key will be used as an IdP identifier as well as in routes.
+        'azure_testing' => [
+            'relay_state_url' => env('SAML2_RELAY_STATE_URL', ''),
+            // Place any other IdP related configuration from the 'idp' section
+            // in the https://github.com/SAML-Toolkits/php-saml#settings below.
+            // Identifier of the IdP entity  (must be a URI).
+            'entityId' => 'https://sts.windows.net/fb536a7a-7251-4895-a09a-abd8e614c70b/',
+            // SSO endpoint info of the IdP. (Authentication Request protocol)
+            'singleSignOnService' => [
+                // URL Target of the IdP where the Authentication Request Message will be sent.
+                'url' => 'https://login.microsoftonline.com/fb536a7a-7251-4895-a09a-abd8e614c70b/saml2',
+            ],
+            // SLO endpoint info of the IdP.
+            'singleLogoutService' => [
+                // URL Location of the IdP where SLO Request will be sent.
+                'url' => 'https://login.microsoftonline.com/common/wsfederation?wa=wsignout1.0',
+                // URL location of the IdP where SLO Response will be sent (ResponseLocation)
+                // if not set, url for the SLO Request will be used.
+                'responseUrl' => '',
+            ],
+            'x509cert' => env('SAML2_IDP_X509', ''),
+        ],
+    ],
+];
+printenv SAML2_IDP_X509
+MIIC0jCCAbqgAw...
 ```
-php artisan saml2:create-tenant \
-  --key=azure_testing \
-  --entityId=https://sts.windows.net/fb536a7a-7251-4895-a09a-abd8e614c70b/ \
-  --loginUrl=https://login.microsoftonline.com/fb536a7a-7251-4895-a09a-abd8e614c70b/saml2 \
-  --logoutUrl=https://login.microsoftonline.com/common/wsfederation?wa=wsignout1.0 \
-  --x509cert="MIIC0jCCAbqgAw...CapVR4ncDVjvbq+/S" \
-  --metadata="customer:11235,anotherfield:value" // you might add some customer parameters here to simplify logging in your customer afterwards
-```
 
-Once you successfully created the tenant, you will receive the following output:
 
-```
-The tenant #1 (63fffdd1-f416-4bed-b3db-967b6a56896b) was successfully created.
+##### Step 3. Register your service provider in Identity Provider
 
-Credentials for the tenant
---------------------------
-
- Identifier (Entity ID): https://yourdomain.com/saml/63fffdd1-f416-4bed-b3db-967b6a56896b/metadata
- Reply URL (Assertion Consumer Service URL): https://yourdomain.com/saml/63fffdd1-f416-4bed-b3db-967b6a56896b/acs
- Sign on URL: https://yourdomain.com/saml/63fffdd1-f416-4bed-b3db-967b6a56896b/login
- Logout URL: https://yourdomain.com/saml/63fffdd1-f416-4bed-b3db-967b6a56896b/logout
- Relay State: / (optional)
-```
-
-##### Step 3. Configure Identity Provider
-
-Using the output below, assign parameters to your IdP on application Single-Sign-On settings page.
+Assign parameters to your IdP on the application Single-Sign-On settings page.
 
 ![Azure AD](https://i.imgur.com/3hkjFLZ.png)
+
+- Identifier (Entity ID) - `https://yourdomain.com/saml2/azure_testing/metadata` or ID you assigned to your SP in the `saml2.php` 
+- Reply URL (Assertion Consumer Service URL) - `https://yourdomain.com/saml2/azure_testing/acs`
+- Sign on URL - `https://yourdomain.com/saml2/azure_testing/login`
+- Logout URL - `https://yourdomain.com/saml2/azure_testing/logout`
+
 
 ##### Step 4. Make sure your application accessible by Azure AD
 
@@ -306,3 +299,5 @@ The MIT License (MIT). Please see [License File](LICENSE.md) for more informatio
 [link-original-author]: https://github.com/aacotroneo
 [link-author]: https://github.com/brezzhnev
 [link-contributors]: ../../contributors
+
+[SAML PHP Toolkit]: https://github.com/SAML-Toolkits/php-saml

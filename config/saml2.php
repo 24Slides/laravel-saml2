@@ -4,17 +4,6 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Tenant Model
-    |--------------------------------------------------------------------------
-    |
-    | This will allow you to override the tenant model with your own.
-    |
-    */
-
-    'tenantModel' => \Slides\Saml2\Models\Tenant::class,
-
-    /*
-    |--------------------------------------------------------------------------
     | Use built-in routes
     |--------------------------------------------------------------------------
     |
@@ -22,11 +11,11 @@ return [
     |
     | Method | URI                             | Name
     | -------|---------------------------------|------------------
-    | POST   | {routesPrefix}/{uuid}/acs       | saml.acs
-    | GET    | {routesPrefix}/{uuid}/login     | saml.login
-    | GET    | {routesPrefix}/{uuid}/logout    | saml.logout
-    | GET    | {routesPrefix}/{uuid}/metadata  | saml.metadata
-    | GET    | {routesPrefix}/{uuid}/sls       | saml.sls
+    | POST   | {routesPrefix}/{key}/acs       | saml.acs
+    | GET    | {routesPrefix}/{key}/login     | saml.login
+    | GET    | {routesPrefix}/{key}/logout    | saml.logout
+    | GET    | {routesPrefix}/{key}/metadata  | saml.metadata
+    | GET    | {routesPrefix}/{key}/sls       | saml.sls
     |
     */
 
@@ -159,6 +148,8 @@ return [
         */
 
         'NameIDFormat' => 'urn:oasis:names:tc:SAML:2.0:nameid-format:persistent',
+        // Set to true to use the format specified in the IdP.
+        'NameIDFormatFromIdp' => false,
 
         /*
         |--------------------------------------------------------------------------
@@ -387,11 +378,35 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Load default migrations
+    | Identity providers (IdPs) configuration.
     |--------------------------------------------------------------------------
     |
-    | This will allow you to disable or enable the default migrations of the package.
-    |
+    | N.B. Unlike underlying SAML PHP Toolkit library which supports only
+    | one IdP at a time, we can handle multiple IdPs and thus the key below
+    | is plural.
     */
-    'load_migrations' => true,
+    'idps' => [
+        // The key will be used as an IdP identifier as well as in routes.
+        'default' => [
+            'relay_state_url' => env('SAML2_RELAY_STATE_URL', ''),
+            // Place any other IdP related configuration from the 'idp' section
+            // in the https://github.com/SAML-Toolkits/php-saml#settings below.
+            // Identifier of the IdP entity  (must be a URI).
+            'entityId' => '',
+            // SSO endpoint info of the IdP. (Authentication Request protocol).
+            'singleSignOnService' => [
+                // URL Target of the IdP where the Authentication Request Message
+                // will be sent.
+                'url' => '',
+            ],
+            // SLO endpoint info of the IdP.
+            'singleLogoutService' => [
+                // URL Location of the IdP where SLO Request will be sent.
+                'url' => '',
+                // URL location of the IdP where SLO Response will be sent (ResponseLocation)
+                // if not set, url for the SLO Request will be used.
+                'responseUrl' => '',
+            ],
+        ],
+    ],
 ];
