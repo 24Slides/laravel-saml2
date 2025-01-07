@@ -12,7 +12,7 @@ if (!function_exists('saml_url'))
      *
      * @return string
      */
-    function saml_url(string $path, string $uuid = null, $parameters = [], bool $secure = null)
+    function saml_url(string $path, ?string $uuid = null, $parameters = [], ?bool $secure = null)
     {
         $target = \Illuminate\Support\Facades\URL::to($path, $parameters, $secure);
 
