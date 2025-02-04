@@ -190,11 +190,10 @@ class Saml2AuthTest extends TestCase
     /**
      * Create a fake tenant.
      *
-     * @return \Slides\Saml2\Models\Tenant
+     * @return \Slides\Saml2\Models\IdentityProvider
      */
     protected function mockTenant()
     {
-        return new \Slides\Saml2\Models\Tenant();
+        return new \Slides\Saml2\Models\IdentityProvider();
     }
 }
-

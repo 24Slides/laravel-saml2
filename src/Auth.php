@@ -4,14 +4,9 @@ namespace Slides\Saml2;
 
 use OneLogin\Saml2\Auth as OneLoginAuth;
 use OneLogin\Saml2\Error as OneLoginError;
+use Slides\Saml2\Contracts\IdentityProvidable;
 use Slides\Saml2\Events\SignedOut;
-use Slides\Saml2\Models\Tenant;
 
-/**
- * Class Auth
- *
- * @package Slides\Saml2
- */
 class Auth
 {
     /**
@@ -19,25 +14,25 @@ class Auth
      *
      * @var OneLoginAuth
      */
-    protected $base;
+    protected OneLoginAuth $base;
 
     /**
      * The resolved tenant.
      *
-     * @var Tenant
+     * @var IdentityProvidable
      */
-    protected $tenant;
+    protected IdentityProvidable $idp;
 
     /**
      * Auth constructor.
      *
      * @param OneLoginAuth $auth
-     * @param Tenant $tenant
+     * @param IdentityProvidable $idp
      */
-    public function __construct(OneLoginAuth $auth, Tenant $tenant)
+    public function __construct(OneLoginAuth $auth, IdentityProvidable $idp)
     {
         $this->base = $auth;
-        $this->tenant = $tenant;
+        $this->idp = $idp;
     }
 
     /**
@@ -45,7 +40,7 @@ class Auth
      *
      * @return bool
      */
-    public function isAuthenticated()
+    public function isAuthenticated(): bool
     {
         return $this->base->isAuthenticated();
     }
@@ -55,17 +50,17 @@ class Auth
      *
      * @return Saml2User
      */
-    public function getSaml2User()
+    public function getSaml2User(): Saml2User
     {
-        return new Saml2User($this->base, $this->tenant);
+        return new Saml2User($this->base, $this->idp);
     }
 
     /**
      * The ID of the last message processed.
      *
-     * @return String
+     * @return string
      */
-    public function getLastMessageId()
+    public function getLastMessageId(): string
     {
         return $this->base->getLastMessageId();
     }
@@ -88,13 +83,13 @@ class Auth
      * @throws OneLoginError
      */
     public function login(
-        $returnTo = null,
-        $parameters = array(),
-        $forceAuthn = false,
-        $isPassive = false,
-        $stay = false,
-        $setNameIdPolicy = true
-    )
+        string $returnTo = null,
+        array $parameters = [],
+        bool $forceAuthn = false,
+        bool $isPassive = false,
+        bool $stay = false,
+        bool $setNameIdPolicy = true
+    ): ?string
     {
         return $this->base->login($returnTo, $parameters, $forceAuthn, $isPassive, $stay, $setNameIdPolicy);
     }
@@ -110,18 +105,18 @@ class Auth
      * @param bool $stay True if we want to stay (returns the url string) False to redirect
      * @param string|null $nameIdNameQualifier The NameID NameQualifier will be set in the LogoutRequest.
      *
-     * @return string|null If $stay is True, it return a string with the SLO URL + LogoutRequest + parameters
+     * @return string|null If $stay is true, it returns a string with the SLO URL + LogoutRequest + parameters
      *
      * @throws OneLoginError
      */
     public function logout(
-        $returnTo = null,
-        $nameId = null,
-        $sessionIndex = null,
-        $nameIdFormat = null,
-        $stay = false,
-        $nameIdNameQualifier = null
-    )
+        string $returnTo = null,
+        string $nameId = null,
+        string $sessionIndex = null,
+        string $nameIdFormat = null,
+        bool $stay = false,
+        string $nameIdNameQualifier = null
+    ): ?string
     {
         $auth = $this->base;
 
@@ -136,13 +131,13 @@ class Auth
      * @throws OneLoginError
      * @throws \OneLogin\Saml2\ValidationError
      */
-    public function acs()
+    public function acs(): ?array
     {
         $this->base->processResponse();
 
         $errors = $this->base->getErrors();
 
-        if (!empty($errors)) {
+        if (!$errors) {
             return $errors;
         }
 
@@ -156,7 +151,7 @@ class Auth
     /**
      * Process the SAML Logout Response / Logout Request sent by the IdP.
      *
-     * Returns an array with errors if it can not logout.
+     * Returns an array with errors if it cannot log out.
      *
      * @param bool $retrieveParametersFromServer
      *
@@ -164,7 +159,7 @@ class Auth
      *
      * @throws \OneLogin\Saml2\Error
      */
-    public function sls($retrieveParametersFromServer = false)
+    public function sls(bool $retrieveParametersFromServer = false): array
     {
         $this->base->processSLO(false, null, $retrieveParametersFromServer, function () {
             event(new SignedOut());
@@ -184,13 +179,13 @@ class Auth
      * @throws \Exception
      * @throws \InvalidArgumentException If metadata is not correctly set
      */
-    public function getMetadata()
+    public function getMetadata(): string
     {
         $settings = $this->base->getSettings();
         $metadata = $settings->getSPMetadata();
         $errors = $settings->validateMetadata($metadata);
 
-        if (!count($errors)) {
+        if (!$errors) {
             return $metadata;
         }
 
@@ -203,11 +198,9 @@ class Auth
     /**
      * Get the last error reason from \OneLogin_Saml2_Auth, useful for error debugging.
      *
-     * @see \OneLogin_Saml2_Auth::getLastErrorReason()
-     *
-     * @return string
+     * @return string|null
      */
-    public function getLastErrorReason()
+    public function getLastErrorReason(): ?string
     {
         return $this->base->getLastErrorReason();
     }
@@ -217,7 +210,7 @@ class Auth
      *
      * @return OneLoginAuth
      */
-    public function getBase()
+    public function getBase(): OneLoginAuth
     {
         return $this->base;
     }
@@ -225,22 +218,22 @@ class Auth
     /**
      * Set a tenant
      *
-     * @param Tenant $tenant
+     * @param IdentityProvidable $idp
      *
      * @return void
      */
-    public function setTenant(Tenant $tenant)
+    public function setIdp(IdentityProvidable $idp)
     {
-        $this->tenant = $tenant;
+        $this->idp = $idp;
     }
 
     /**
      * Get a resolved tenant.
      *
-     * @return Tenant|null
+     * @return IdentityProvidable|null
      */
-    public function getTenant()
+    public function getIdp(): ?IdentityProvidable
     {
-        return $this->tenant;
+        return $this->idp;
     }
 }

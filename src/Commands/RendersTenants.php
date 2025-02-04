@@ -2,28 +2,23 @@
 
 namespace Slides\Saml2\Commands;
 
-use Slides\Saml2\Models\Tenant;
+use Slides\Saml2\Contracts\IdentityProvidable;
 use Illuminate\Support\Str;
 
-/**
- * Class CreateTenant
- *
- * @package Slides\Saml2\Commands
- */
 trait RendersTenants
 {
     /**
      * Render tenants in a table.
      *
-     * @param \Slides\Saml2\Models\Tenant|\Illuminate\Support\Collection $tenants
+     * @param IdentityProvidable|\Illuminate\Support\Collection $tenants
      * @param string|null $title
      *
      * @return void
      */
     protected function renderTenants($tenants, ?string $title = null)
     {
-        /** @var \Slides\Saml2\Models\Tenant[]|\Illuminate\Database\Eloquent\Collection $tenants */
-        $tenants = $tenants instanceof Tenant
+        /** @var \Slides\Saml2\Models\IdentityProvider[]|\Illuminate\Database\Eloquent\Collection $tenants */
+        $idps = $tenants instanceof IdentityProvidable
             ? collect([$tenants])
             : $tenants;
 
@@ -48,13 +43,13 @@ trait RendersTenants
     }
 
     /**
-     * Get a columns of the Tenant.
+     * Get a columns of the IdentityProvidable.
      *
-     * @param \Slides\Saml2\Models\Tenant $tenant
+     * @param IdentityProvidable $tenant
      *
      * @return array
      */
-    protected function getTenantColumns(Tenant $tenant)
+    protected function getTenantColumns(IdentityProvidable $tenant)
     {
         return [
             'ID' => $tenant->id,
@@ -74,22 +69,22 @@ trait RendersTenants
     }
 
     /**
-     * Render a tenant credentials.
+     * Render IDP credentials.
      *
-     * @param \Slides\Saml2\Models\Tenant $tenant
+     * @param IdentityProvidable $idp
      *
      * @return void
      */
-    protected function renderTenantCredentials(Tenant $tenant)
+    protected function renderTenantCredentials(IdentityProvidable $idp)
     {
-        $this->output->section('Credentials for the tenant');
+        $this->output->section('Identity Provider credentials');
 
         $this->getOutput()->text([
-            'Identifier (Entity ID): <comment>' . route('saml.metadata', ['uuid' => $tenant->uuid]) . '</comment>',
-            'Reply URL (Assertion Consumer Service URL): <comment>' . route('saml.acs', ['uuid' => $tenant->uuid]) . '</comment>',
-            'Sign on URL: <comment>' . route('saml.login', ['uuid' => $tenant->uuid]) . '</comment>',
-            'Logout URL: <comment>' . route('saml.logout', ['uuid' => $tenant->uuid]) . '</comment>',
-            'Relay State: <comment>' . ($tenant->relay_state_url ?: config('saml2.loginRoute')) . ' (optional)</comment>'
+            'Identifier (Entity ID): <comment>' . route('saml.metadata', ['uuid' => $idp->uuid]) . '</comment>',
+            'Reply URL (Assertion Consumer Service URL): <comment>' . route('saml.acs', ['uuid' => $idp->uuid]) . '</comment>',
+            'Sign on URL: <comment>' . route('saml.login', ['uuid' => $idp->uuid]) . '</comment>',
+            'Logout URL: <comment>' . route('saml.logout', ['uuid' => $idp->uuid]) . '</comment>',
+            'Relay State: <comment>' . ($idp->relay_state_url ?: config('saml2.loginRoute')) . ' (optional)</comment>'
         ]);
     }
 
@@ -100,7 +95,7 @@ trait RendersTenants
      *
      * @return string
      */
-    protected function renderArray(array $array)
+    protected function renderArray(array $array): string
     {
         $lines = [];
 
