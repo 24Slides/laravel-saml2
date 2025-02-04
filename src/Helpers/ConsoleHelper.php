@@ -22,7 +22,7 @@ class ConsoleHelper
      *
      * @return array
      */
-    public static function stringToArray(string $string = null, string $valueDelimiter = ':', string $itemDelimiter = ',')
+    public static function stringToArray(?string $string = null, string $valueDelimiter = ':', string $itemDelimiter = ',')
     {
         if(is_null($string)) {
             return [];
