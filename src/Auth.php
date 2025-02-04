@@ -4,6 +4,7 @@ namespace Slides\Saml2;
 
 use OneLogin\Saml2\Auth as OneLoginAuth;
 use OneLogin\Saml2\Error as OneLoginError;
+use OneLogin\Saml2\Utils as OneLoginUtils;
 use Slides\Saml2\Events\SignedOut;
 use Slides\Saml2\Models\Tenant;
 
@@ -167,6 +168,7 @@ class Auth
     public function sls($retrieveParametersFromServer = false)
     {
         $this->base->processSLO(false, null, $retrieveParametersFromServer, function () {
+            OneLoginUtils::deleteLocalSession();
             event(new SignedOut());
         });
 
