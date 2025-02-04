@@ -37,7 +37,7 @@ if (!function_exists('saml_route'))
      *
      * @return string
      */
-    function saml_route(string $name, string $uuid = null, $parameters = [])
+    function saml_route(string $name, ?string $uuid = null, $parameters = [])
     {
         $target = \Illuminate\Support\Facades\URL::route($name, $parameters, true);
 
