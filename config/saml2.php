@@ -214,6 +214,13 @@ return [
         'singleLogoutService' => [
             'url' => ''
         ],
+
+        /*
+         * Valid Until (in seconds)
+         * Default value will be 30 days
+         *
+         */
+        'validUntil' => 2592000,
     ],
 
     /*
