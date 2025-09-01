@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [2.4.1] - 2025-02-04
+
+### Added
+- Add explicit nullable type in a few places to avoid "PHP Deprecated" warning (PR [#113](https://github.com/24Slides/laravel-saml2/pull/113), @andreypopov)
+
 ## [2.4.0] - 2024-04-13
 
 ### Added
@@ -69,7 +74,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [2.0.6] - 2020-10-23
 
 ### Fixed
-- Setting Name ID Format on SP bootstrap 
+- Setting Name ID Format on SP bootstrap
 
 ## [2.0.5] - 2020-10-23
 
@@ -107,8 +112,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Helper functions `saml_url()`, `saml_route()`, `saml_tenant_uuid()`
 - Initializing SP in middleware
 - Database migrations
-- Console commands `saml2:create-tenant`, `saml2:update-tenant`, `saml2:delete-tenant`, 
-`saml2:restore-tenant`, `saml2:list-tenants`, `saml2:tenant-credentials`
+- Console commands `saml2:create-tenant`, `saml2:update-tenant`, `saml2:delete-tenant`,
+  `saml2:restore-tenant`, `saml2:list-tenants`, `saml2:tenant-credentials`
 
 ### Fixed
 - Routes are now accepting UUID of tenants instead of `idpKey`

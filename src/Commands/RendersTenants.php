@@ -20,7 +20,7 @@ trait RendersTenants
      *
      * @return void
      */
-    protected function renderTenants($tenants, string $title = null)
+    protected function renderTenants($tenants, ?string $title = null)
     {
         /** @var \Slides\Saml2\Models\Tenant[]|\Illuminate\Database\Eloquent\Collection $tenants */
         $tenants = $tenants instanceof Tenant
