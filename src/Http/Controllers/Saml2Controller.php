@@ -70,7 +70,7 @@ class Saml2Controller extends Controller
 
         $this->unsetRequest();
 
-        if ($redirectUrl) {
+        if (filled($redirectUrl) && $redirectUrl !== 'undefined') {
             return redirect($redirectUrl);
         }
 
