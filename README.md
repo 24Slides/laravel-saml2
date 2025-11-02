@@ -1,3 +1,9 @@
+> ## ⚠️ THIS REPOSITORY IS DEPRECATED ⚠️
+>
+> **This package is no longer maintained by 24Slides.**
+> It will not receive any further updates, bug fixes, or security patches. We strongly recommend using an alternative, actively maintained SAML package for Laravel.
+> You are free to fork this repository and continue its development independently.
+
 ## [Laravel 5.4+] SAML Service Provider 
 
 [![Latest Stable Version][ico-version]][link-packagist]
