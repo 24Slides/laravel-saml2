@@ -284,7 +284,7 @@ vendor/bin/phpunit
 
 ## Security
 
-If you discover any security related issues, please email **brezzhnev@gmail.com** instead of using the issue tracker.
+As this project is **no longer maintained**, security vulnerabilities will not be fixed by 24Slides. The email address previously listed for reporting is no longer monitored for this project.
 
 ## Credits
 
