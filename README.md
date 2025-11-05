@@ -169,22 +169,15 @@ protected $middlewareGroups = [
 
 There are two ways the user can logout:
 - By logging out in your app. In this case you SHOULD notify the IdP first so it'll close the global session.
-- By logging out of the global SSO Session. In this case the IdP will notify you on `/saml2/{uuid}/slo` endpoint (already provided).
+- By logging out of the global SSO Session. In this case the IdP will notify you on `/saml2/{uuid}/sls` endpoint (already provided).
 
 For the first case, call `Saml2Auth::logout();` or redirect the user to the route `saml.logout` which does just that. 
-Do not close the session immediately as you need to receive a response confirmation from the IdP (redirection). 
-That response will be handled by the library at `/saml2/sls` and will fire an event for you to complete the operation.
+This do not close the session immediately as you need to receive a response confirmation from the IdP (redirection). 
+That response will be handled by the library at `/saml2/{uuid}/sls` where session will be destroyed and an event
+will fire for you to react.
 
-For the second case you will only receive the event. Both cases receive the same event. 
-
-Note that for the second case, you may have to manually save your session to make the logout stick (as the session is saved by middleware, but the OneLogin library will redirect back to your IdP before that happens):
-
-```php
-Event::listen('Slides\Saml2\Events\SignedOut', function (SignedOut $event) {
-    Auth::logout();
-    Session::save();
-});
-```
+For the second case you will only receive the event after the global and local session are destroyed. 
+Both cases receive the same event.
 
 ### SSO-friendly links
 
