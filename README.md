@@ -126,6 +126,8 @@ Event::listen(\Slides\Saml2\Events\SignedIn::class, function (\Slides\Saml2\Even
     
     $user = // find user by ID or attribute
     
+    \Slides\Saml2\Session::store($samlUser->getTenant(), $samlUser);
+    
     // Login a user.
     Auth::login($user);
 });
@@ -171,8 +173,8 @@ There are two ways the user can logout:
 - By logging out in your app. In this case you SHOULD notify the IdP first so it'll close the global session.
 - By logging out of the global SSO Session. In this case the IdP will notify you on `/saml2/{uuid}/slo` endpoint (already provided).
 
-For the first case, call `Saml2Auth::logout();` or redirect the user to the route `saml.logout` which does just that. 
-Do not close the session immediately as you need to receive a response confirmation from the IdP (redirection). 
+For the first case, call `Session::logout();` or redirect the user to the route `saml.logout` which does just that. 
+Do not close the Laravel session immediately as you need to receive a response confirmation from the IdP (redirection). 
 That response will be handled by the library at `/saml2/sls` and will fire an event for you to complete the operation.
 
 For the second case you will only receive the event. Both cases receive the same event. 
